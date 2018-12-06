@@ -10,6 +10,15 @@
 		HEX=020,//包含0~9,a~f,A~F
 		OTHER=040//包含标准允许出现在源程序的其他ASCII字符,'@'就不是
 	};
+
+	enum{
+		AUTO=1,BREAK,CASE,CHAR,CONST,CONTINUE,
+		DEFAULT,DO,DOUBLE,ELSE,ENUM,EXTERN,
+		FLOAT,FOR,GOTO,IF,INT,LONG,RETURN,SHORT,
+		SIGNED,SIZEOF,STATIC,STRUCT,SWITCH,TYPEDEF,
+		UNSIGNED,VOID,WHILE,
+		ICON,FCON,SCON
+	};//VOLATILE,REGISTER,UNION
 //<exported typedefs>
 //<exported functions>
 	//返回下一个待处理的非空白字符
@@ -20,10 +29,9 @@
 	//通常使用全局变量t保存当前单词
 	extern int t;
 	//token当前单词的原文本
-	extern char* token;
+	extern std::string token;
 	//tsym为默写单词存放Symbol
-	extern Symbol tsym;
+	extern struct symbol* tsym;
 	//src表示当前单词在源程序中的坐标
-	extern Coordinate src;
-	//掩码map[c]可以将字符c归为上面6种集合
-	char map[256]={/*<map initializer>*/};
+	extern struct coord src;
+	extern char map[256];

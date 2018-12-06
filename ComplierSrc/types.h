@@ -28,17 +28,16 @@
 	#define isenum(t)		(unqual(t)->op ==ENUM)
 
 //<exported types>
-	typedef struct type{
+	class type{
+	public:
 		//字符串表示
 		char* name;
 		//类型操作符编码
 		int op;
-		//类型操作数
-		struct type* type;
 		//以字节为单位的对象大小
 		int size;
 		//kid:子节点,next:兄弟节点
-		struct type* kid,next;
+		type* kid,* next;
 		// union{
 		// 	//<types with names or tags>
 		// 	//u.sym指向符号表入口
@@ -51,16 +50,18 @@
 		// 	// 	Type* proto;
 		// 	// }f;
 		// }u;
-	}* Type;
-
-	enum{CHAR=1,INT,UNSIGNED,SHORT,
-		LONG,ENUM,//以上为整数类型,除了ENUM以外没有操作数
-		FLOAT,DOUBLE,//以上为算术类型,没有操作数
-		ARRAY,STRUCT,UNION,//左边为聚合类型,STRUCT和UNION没有操作数
-		POINTER,//指针类型,操作数指明被引用类型
-		FUNCTION,//函数类型,操作数指明返回类型
-		CONST,//限定类型,操作数指明未限定形式
-		VOID//void类型,没有操作数
+		type(char*n,int o,int sz);
+		type();
+	};
+	typedef type* Type;
+	enum{TYPE_CHAR=1,TYPE_INT,TYPE_UNSIGNED,TYPE_SHORT,
+		TYPE_LONG,TYPE_ENUM,//以上为整数类型,除了ENUM以外没有操作数
+		TYPE_FLOAT,TYPE_DOUBLE,//以上为算术类型,没有操作数
+		TYPE_ARRAY,TYPE_STRUCT,TYPE_UNION,//左边为聚合类型,STRUCT和UNION没有操作数
+		TYPE_POINTER,//指针类型,操作数指明被引用类型
+		TYPE_FUNCTION,//函数类型,操作数指明返回类型
+		TYPE_CONST,//限定类型,操作数指明未限定形式
+		TYPE_VOID//void类型,没有操作数
 	};//op的可选值
 	//ENUM的操作数是枚举标识符的类型,总是整型
 	//ARRAY的操作数是数组元素类型

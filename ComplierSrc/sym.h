@@ -1,30 +1,32 @@
 #pragma once
 #include"CommonHead.h"
 //<exported macros>
+#define HASHSIZE 256
 //<exported types>
 
 	typedef struct coord{
 		char* file;//该定义的文件名
-		uint x,y;//行号和字符位置
-	}Coordinate;
+		unsigned x,y;//行号和字符位置
+	}Coo;
 
 	typedef union value{
 		char sc;
 		short ss;
 		int i;
-		uchar uc;
+		unsigned char uc;
 		unsigned short us;
-		uint u;
+		unsigned u;
 		float f;
 		double d;
 		void* p;
 	}Value;
 
 	typedef struct symbol{
+	public:
 		char* name;
 		//scope域说明了符号是常量,标号,全局变量,参数或局部变量
 		int scope;
-		Coordinate src;
+		Coo src;
 		//把符号表中所有符号连成了一个链表
 		//最后载入符号表的符号为链首
 		//从后向前遍历该链表可以访问到当前作用域内的所有符号
@@ -34,13 +36,13 @@
 		//有:无(常量,标号),AUTO,REGISTER,STATIC,EXTERN,TYPEDEF,ENUM
 		int sclass;
 		//type域保存了变量,函数,常量,结构,联合和枚举等类型信息
-		Type type;
+		class type* type;
 		union{
 			//<struct types>
-			struct{
-				//flist域指向用next域连起来的field结构
-				Field flist;
-			}s;
+			//struct{
+			//	//flist域指向用next域连起来的field结构
+			//	//Field flist;
+			//}s;
 			//<enum constants>
 			int value;
 			//<enum types>
@@ -62,17 +64,17 @@
 			//<temporaries>
 		}u;
 		//<symbol flags>
-		uint temporary:1;
+		unsigned temporary:1;
 		// uint generated:1;
-		uint defined:1;
+		unsigned defined:1;
 		//如果该类型的常量可以作为指令的一部分,addressed的值为0
-		uint addressed:1;
+		unsigned addressed:1;
 	}* Symbol;
 
 	//注:在第k层声明的局部变量,其scope域等于LOCAL+k
-	enum{CONSTANTS=1,LABELS,GLOBAL,PARAM,LOCAL};//scope
+	enum{SCOPE_CONSTANTS=1,SCOPE_LABELS,SCOPE_GLOBAL,SCOPE_PARAM,SCOPE_LOCAL};//scope
 
-	enum{AUTO=1,REGISTER,STATIC,EXTERN,TYPEDEF,ENUM};//sclass
+	enum{SCLASS_AUTO=1,SCLASS_STATIC,SCLASS_EXTERN,SCLASS_TYPEDEF,SCLASS_ENUM};//sclass
 
 	typedef struct table{
 		//作用域
@@ -83,7 +85,7 @@
 		struct entry{
 			symbol sym;
 			entry* next;
-		}* buckets[256];
+		}* buckets[HASHSIZE];
 		//由当前及外层作用域中所有符号组成的列表的头
 		Symbol all;
 	}* Table;

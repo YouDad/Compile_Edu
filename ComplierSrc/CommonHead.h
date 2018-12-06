@@ -1,10 +1,14 @@
 #pragma once
 #include<stdio.h>
-#include"LexicalAnalyzer.h"
+#include<string>
+#include<stdarg.h>
+#include"types.h"
 #include"sym.h"
+#include"LexicalAnalyzer.h"
 
 
-
+typedef std::string String;
+void error(char* fmt,...);
 
 
 
