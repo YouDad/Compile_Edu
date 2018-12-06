@@ -71,6 +71,7 @@ int getToken(){
 				}
 			}
 			token+=nowChar;getChar();
+			//<对于'\071'的识别>
 			int value=0;
 			sscanf(token.c_str(),"'%c",&value);
 			tval.addressed=0;
