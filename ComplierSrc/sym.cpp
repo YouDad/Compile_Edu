@@ -43,6 +43,6 @@ Symbol install(char* name,Table&tp,int level){
 	tp->buckets[h]=p;
 	return &p->sym;
 }
-Symbol lookup(char* name,Table tp){
+Symbol lookup(const char* name,Table tp){
 	return NULL;
 }

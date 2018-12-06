@@ -9,9 +9,12 @@ int line=1,cols=1;
 struct symbol tval;
 //lastChar是上一次调用getChar()的结果,nowChar是这一次的
 char lastChar,nowChar=' ';
+//tsym为某些单词存放Symbol
+struct symbol* tsym;
+//src表示当前单词在源程序中的坐标
 Coo src;
 //掩码map[c]可以将字符c归为上面6种集合
-char map[256]={/*<map initializer>*/};
+char map[256];
 int t;
 //<functions>
 void mapInit(){
@@ -37,11 +40,8 @@ int getChar(){
 	lastChar=nowChar;
 	nowChar=getchar();
 	cols++;
-	while(nowChar=='\n'){
-		line++;
-		cols=1;
-		nowChar=getchar();
-	}
+	if(lastChar&NEWLINE)
+		line++,cols=1;
 	return nowChar;
 }
 int getToken(){
@@ -52,10 +52,12 @@ int getToken(){
 			error("Can't accept %c",nowChar);
 		}
 		//排除空白字符
-		while(map[nowChar]&BLANK)
+		while(map[nowChar]&(BLANK|NEWLINE))
 			getChar();
 		//清空原文字符串
 		token="";
+		src.x=line;
+		src.y=cols;
 		//根据首字符来识别不同token
 		switch(nowChar){
 #include"LexicalAnalyzer_HXM.cpp"
@@ -63,8 +65,6 @@ int getToken(){
 		//识别字符常量
 		case '\'':
 			token+=nowChar;getChar();
-			src.x=line;
-			src.y=cols-2;
 			//escape代表是否遇到了转义字符
 			bool escape=false;
 			while(escape||nowChar!='\''){

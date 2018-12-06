@@ -103,7 +103,7 @@
 	//查找的关键字是符号的name
 	//如果查找到了就返回一个指向符号的指针
 	//否则返回空指针
-	Symbol lookup(char* name,Table tp);
+	Symbol lookup(const char* name,Table tp);
 
 //<exported data>
 	//静态或常量

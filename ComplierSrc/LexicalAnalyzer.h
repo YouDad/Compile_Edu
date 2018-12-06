@@ -17,7 +17,7 @@
 		FLOAT,FOR,GOTO,IF,INT,LONG,RETURN,SHORT,
 		SIGNED,SIZEOF,STATIC,STRUCT,SWITCH,TYPEDEF,
 		UNSIGNED,VOID,WHILE,
-		ICON,FCON,SCON
+		ICON,FCON,SCON,ID
 	};//VOLATILE,REGISTER,UNION
 //<exported typedefs>
 //<exported functions>
@@ -30,7 +30,7 @@
 	extern int t;
 	//token当前单词的原文本
 	extern std::string token;
-	//tsym为默写单词存放Symbol
+	//tsym为某些单词存放Symbol
 	extern struct symbol* tsym;
 	//src表示当前单词在源程序中的坐标
 	extern struct coord src;
