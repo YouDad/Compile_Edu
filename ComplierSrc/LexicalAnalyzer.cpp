@@ -17,19 +17,20 @@ int t;
 void mapInit(){
 	for(int i=0;i<256;i++){
 		if('a'<=i&&i<='z')
-			map[i]|=LETTER;
+			map[i]|=LETTER|ANSIC;
 		if('A'<=i&&i<='Z')
-			map[i]|=LETTER;
+			map[i]|=LETTER|ANSIC;
 		if('0'<=i&&i<='9')
-			map[i]|=DIGIT|HEX;
+			map[i]|=DIGIT|HEX|ANSIC;
 		if('a'<=i&&i<='f')
 			map[i]|=HEX;
 		if('A'<=i&&i<='F')
 			map[i]|=HEX;
-		if(i=='\t')map[i]|=BLANK;
-		if(i==' ')map[i]|=BLANK;
-		if(i=='\n')map[i]|=NEWLINE;
-		//<NOT ENOUGH,ASCII>
+		if(i=='\t')map[i]|=BLANK|ANSIC;
+		if(i==' ')map[i]|=BLANK|ANSIC;
+		if(i=='\n')map[i]|=NEWLINE|ANSIC;
+		for(char*p="~!%^&*()_+-=[]{}\\|;':\",.<>/?";*p;p++)
+			map[*p]|=ANSIC;
 	}
 }
 int getChar(){
@@ -46,16 +47,22 @@ int getChar(){
 int getToken(){
 	if(!map[' '])mapInit();
 	while(1){
+		//处理非ANSI C的字符
+		if(!(map[nowChar]&ANSIC)){
+			error("Can't accept %c",nowChar);
+		}
 		//排除空白字符
 		while(map[nowChar]&BLANK)
 			getChar();
+		//清空原文字符串
+		token="";
 		//根据首字符来识别不同token
 		switch(nowChar){
 #include"LexicalAnalyzer_HXM.cpp"
 #include"LexicalAnalyzer_HXH.cpp"
 		//识别字符常量
 		case '\'':
-			token="'";getChar();
+			token+=nowChar;getChar();
 			src.x=line;
 			src.y=cols-2;
 			//escape代表是否遇到了转义字符
