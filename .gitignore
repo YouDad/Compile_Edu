@@ -1,7 +1,4 @@
 main.code-workspace
 _*
-*.suo
-*.vc*
-*.sln
 ComplierSrc/Debug/*
 Debug/*
