@@ -40,7 +40,7 @@ int getChar(){
 	lastChar=nowChar;
 	nowChar=getchar();
 	cols++;
-	if(lastChar&NEWLINE)
+	if(map[lastChar]&NEWLINE)
 		line++,cols=1;
 	return nowChar;
 }
@@ -68,22 +68,23 @@ int getToken(){
 			//escape代表是否遇到了转义字符
 			bool escape=false;
 			while(escape||nowChar!='\''){
-				if(escape)escape=false;
-				if(nowChar=='\\')
+				if(escape)
+					escape=false;
+				else if(nowChar=='\\')
 					escape=true;
-				token+=nowChar;
-				getChar();
+				token+=nowChar;getChar();
 				if(nowChar==EOF){
 					error("Invalid Character");
 				}
 			}
 			token+=nowChar;getChar();
 			//<对于'\071'的识别>
-			int value=0;
-			sscanf(token.c_str(),"'%c",&value);
+			//<对于转移字符的识别>
+			int v=0;
+			sscanf(token.c_str(),"'%c",&v);
 			tval.addressed=0;
-			tval.u.c.v.i=value;
-			//tval.type=inttype;
+			tval.u.c.v.i=v;
+			tval.type=inttype;
 			return ICON;
 		}
 	}
