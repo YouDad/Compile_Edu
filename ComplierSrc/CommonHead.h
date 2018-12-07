@@ -1,6 +1,7 @@
 #pragma once
 #include<stdio.h>
 #include<string>
+#include<string.h>
 #include<stdarg.h>
 #include"types.h"
 #include"sym.h"
