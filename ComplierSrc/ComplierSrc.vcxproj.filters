@@ -44,21 +44,9 @@
     <ClInclude Include="LexicalAnalyzer.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="LexicalAnalyzer_HXH.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="LexicalAnalyzer_HXM.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\unittest\LexicalAnalyzer_HXH.txt">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\unittest\LexicalAnalyzer_HXM.txt">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\unittest\LexicalAnalyzer_LWH.txt">
+    <None Include="..\unittest\LexicalAnalyzer.txt">
       <Filter>资源文件</Filter>
     </None>
   </ItemGroup>

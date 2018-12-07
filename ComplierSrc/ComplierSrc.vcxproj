@@ -84,15 +84,11 @@
   <ItemGroup>
     <ClInclude Include="CommonHead.h" />
     <ClInclude Include="LexicalAnalyzer.h" />
-    <ClInclude Include="LexicalAnalyzer_HXH.h" />
-    <ClInclude Include="LexicalAnalyzer_HXM.h" />
     <ClInclude Include="sym.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\unittest\LexicalAnalyzer_HXH.txt" />
-    <None Include="..\unittest\LexicalAnalyzer_HXM.txt" />
-    <None Include="..\unittest\LexicalAnalyzer_LWH.txt" />
+    <None Include="..\unittest\LexicalAnalyzer.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

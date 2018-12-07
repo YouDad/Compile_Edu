@@ -8,7 +8,8 @@
 		LETTER=04,//包含a~z,A~Z
 		DIGIT=010,//包含0~9
 		HEX=020,//包含0~9,a~f,A~F
-		ANSIC=040//包含标准允许出现在源程序的ASCII字符,'@'就不是
+		ANSIC=040,//包含标准允许出现在源程序的ASCII字符,'@'就不是
+		IDPART=0100//允许为标识符的一部分(非首字符)
 	};
 
 	enum{
@@ -16,8 +17,8 @@
 		DEFAULT,DO,DOUBLE,ELSE,ENUM,EXTERN,
 		FLOAT,FOR,GOTO,IF,INT,LONG,RETURN,SHORT,
 		SIGNED,SIZEOF,STATIC,STRUCT,SWITCH,TYPEDEF,
-		UNSIGNED,VOID,WHILE,
-		ICON,FCON,SCON,ID
+		UNSIGNED,VOID,WHILE,REGISTER,UNION,VOLATILE,
+		ID,ICON,FCON,SCON
 	};//VOLATILE,REGISTER,UNION
 //<exported typedefs>
 //<exported functions>
