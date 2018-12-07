@@ -60,8 +60,8 @@ int getToken(){
 		src.y=cols;
 		//根据首字符来识别不同token
 		switch(nowChar){
-#include"LexicalAnalyzer_HXM.cpp"
-#include"LexicalAnalyzer_HXH.cpp"
+#include"LexicalAnalyzer_HXM.h"
+#include"LexicalAnalyzer_HXH.h"
 		//识别字符常量
 		case '\'':
 			token+=nowChar;getChar();

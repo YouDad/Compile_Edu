@@ -27,9 +27,6 @@
     <ClCompile Include="LexicalAnalyzer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="LexicalAnalyzer_HXH.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="types.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -45,6 +42,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="LexicalAnalyzer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LexicalAnalyzer_HXH.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LexicalAnalyzer_HXM.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

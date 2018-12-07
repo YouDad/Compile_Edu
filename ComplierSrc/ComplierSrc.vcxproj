@@ -77,7 +77,6 @@
   <ItemGroup>
     <ClCompile Include="CommonHead.cpp" />
     <ClCompile Include="LexicalAnalyzer.cpp" />
-    <ClCompile Include="LexicalAnalyzer_HXH.cpp" />
     <ClCompile Include="sym.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="types.cpp" />
@@ -85,6 +84,8 @@
   <ItemGroup>
     <ClInclude Include="CommonHead.h" />
     <ClInclude Include="LexicalAnalyzer.h" />
+    <ClInclude Include="LexicalAnalyzer_HXH.h" />
+    <ClInclude Include="LexicalAnalyzer_HXM.h" />
     <ClInclude Include="sym.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>
