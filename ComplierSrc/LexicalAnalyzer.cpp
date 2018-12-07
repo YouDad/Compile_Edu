@@ -49,7 +49,7 @@ int getToken(){
 	if(!map[' '])mapInit();
 	while(1){
 		//处理非ANSI C的字符
-		if(!(map[nowChar]&ANSIC)){
+		if(nowChar<0||(!(map[nowChar]&ANSIC))){
 			error("%c isn't ANSI C character",nowChar);
 		}
 		//排除空白字符
