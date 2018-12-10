@@ -3,9 +3,7 @@
 #include<string>
 #include<string.h>
 #include<stdarg.h>
-#include"types.h"
-#include"sym.h"
-#include"LexicalAnalyzer.h"
+#include<hash_map>
 
 
 typedef std::string String;
@@ -13,6 +11,9 @@ void error(char* fmt,...);
 
 
 
+#include"types.h"
+#include"sym.h"
+#include"LexicalAnalyzer.h"
 
 
 

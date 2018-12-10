@@ -12,7 +12,7 @@ char lastChar,nowChar=' ';
 //tsym为某些单词存放Symbol
 struct symbol* tsym;
 //src表示当前单词在源程序中的坐标
-Coo src;
+Coordinate src;
 //掩码map[c]可以将字符c归为上面7种集合
 char map[256];
 int t;

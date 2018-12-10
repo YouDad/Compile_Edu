@@ -56,8 +56,5 @@ static Type newType(char* name,int op,int size){
 	return &tn->type;
 }
 void typeInit(){
-	Symbol p=install("int",types,SCOPE_GLOBAL);
-	inttype=newType("int",INT,4);
-	p->type=inttype;
-	p->addressed=0;
+	
 }
