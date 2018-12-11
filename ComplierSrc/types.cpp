@@ -8,20 +8,20 @@
 		struct entry* next;
 	}* typetable[typetablesize];
 
-	Type chartype;
-	Type doubletype;
-	Type floattype;
-	Type inttype;
-	Type longdouble;
-	Type longtype;
-	Type shorttype;
-	Type signedchar;
-	Type unsignedchar;
-	Type unsignedlong;
-	Type unsignedshort;
-	Type unsignedtype;
-	Type voidptype;
-	Type voidtype;
+	struct type* chartype;
+	struct type* doubletype;
+	struct type* floattype;
+	struct type* inttype;
+	struct type* longdouble;
+	struct type* longtype;
+	struct type* shorttype;
+	struct type* signedchar;
+	struct type* unsignedchar;
+	struct type* unsignedlong;
+	struct type* unsignedshort;
+	struct type* unsignedtype;
+	struct type* voidptype;
+	struct type* voidtype;
 
 //<functions>
 
@@ -39,7 +39,7 @@ type::type(){
 }
 //创建新类型时,type初始化参数指定的域
 //将类型加入相应的哈希链,并返回新类型
-static Type newType(char* name,int op,int size){
+static struct type* newType(char* name,int op,int size){
 	//利用类型操作符和操作数地址的异或值作为哈希值
 	unsigned h=(op^((unsigned)name>>3))&(typetablesize-1);
 	struct entry* tn;
@@ -56,5 +56,5 @@ static Type newType(char* name,int op,int size){
 	return &tn->type;
 }
 void typeInit(){
-	
+
 }

@@ -99,7 +99,7 @@ int getToken(){
 				}
 			}
 			//根据原文字符串得到(如果有的话)符号指针
-			tsym=lookup(token.c_str(),identifiers);
+			tsym=findSymbol(token);
 			return ID;
 #define recognize(string,RET) \
 	for(char*p=string;*p;p++){\
@@ -108,7 +108,7 @@ int getToken(){
 		}else if(map[nowChar]&(DIGIT|LETTER)){\
 			goto id;\
 		}else{\
-			tsym=lookup(token.c_str(),identifiers);\
+			tsym=findSymbol(token);\
 			return ID;\
 		}\
 	}\

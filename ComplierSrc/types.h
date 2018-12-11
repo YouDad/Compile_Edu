@@ -28,7 +28,7 @@
 	#define isenum(t)		(unqual(t)->op ==ENUM)
 
 //<exported types>
-	class type{
+	struct type{
 	public:
 		//字符串表示
 		char* name;
@@ -47,13 +47,12 @@
 		// 	// //f.protp指向以空指针结尾的Type数组
 		// 	// //proto[i]是第i+1个参数类型
 		// 	// struct{
-		// 	// 	Type* proto;
+		// 	// 	struct type** proto;
 		// 	// }f;
 		// }u;
 		type(char*n,int o,int sz);
 		type();
 	};
-	typedef type* Type;
 	enum{TYPE_CHAR=1,TYPE_INT,TYPE_UNSIGNED,TYPE_SHORT,
 		TYPE_LONG,TYPE_ENUM,//以上为整数类型,除了ENUM以外没有操作数
 		TYPE_FLOAT,TYPE_DOUBLE,//以上为算术类型,没有操作数
@@ -72,23 +71,23 @@
 	void rmtypes(int lev);
 	//如果ty1或ty2是不完全类型,则返回ret的值
 	//eqtype函数用于测试类型是否兼容
-	bool eqtype(Type ty1,Type ty2,bool ret);
+	bool eqtype(struct type* ty1,struct type* ty2,bool ret);
 	//btot接受一个类型后缀,返回一个相应类型
-	Type btot(int op);
+	struct type* btot(int op);
 
 //<exported data>
 	//<需要初始化>
-	extern Type chartype;
-	extern Type doubletype;
-	extern Type floattype;
-	extern Type inttype;
-	extern Type longdouble;
-	extern Type longtype;
-	extern Type shorttype;
-	extern Type signedchar;
-	extern Type unsignedchar;
-	extern Type unsignedlong;
-	extern Type unsignedshort;
-	extern Type unsignedtype;
-	extern Type voidptype;
-	extern Type voidtype;
+	extern struct type* chartype;
+	extern struct type* doubletype;
+	extern struct type* floattype;
+	extern struct type* inttype;
+	extern struct type* longdouble;
+	extern struct type* longtype;
+	extern struct type* shorttype;
+	extern struct type* signedchar;
+	extern struct type* unsignedchar;
+	extern struct type* unsignedlong;
+	extern struct type* unsignedshort;
+	extern struct type* unsignedtype;
+	extern struct type* voidptype;
+	extern struct type* voidtype;
