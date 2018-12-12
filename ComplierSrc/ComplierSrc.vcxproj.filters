@@ -30,6 +30,9 @@
     <ClCompile Include="types.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="BackEnd.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonHead.h">
@@ -42,6 +45,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="LexicalAnalyzer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BackEnd.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

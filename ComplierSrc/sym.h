@@ -34,6 +34,8 @@
 		int sclass;
 		//type域保存了变量,函数,常量,结构,联合和枚举等类型信息
 		struct type* type;
+		//offset域保存了这个符号在对应表内的偏移量
+		int offset;
 		union{
 			//enum constants value
 			int ev;
@@ -58,7 +60,7 @@
 	//注:在第k层声明的局部变量,其scope域等于LOCAL+k
 	enum SCOPE{SCOPE_CONSTANTS=1,SCOPE_GLOBAL,SCOPE_PARAM,SCOPE_LOCAL};//scope
 
-	enum SCLASS{SCLASS_AUTO=1,SCLASS_CONST,SCLASS_STATIC,SCLASS_EXTERN,SCLASS_TYPEDEF};//sclass
+	enum SCLASS{SCLASS_AUTO=1,SCLASS_EXTERN,SCLASS_TYPEDEF,SCLASS_CONST,SCLASS_STATIC};//sclass
 
 	typedef struct table{
 
@@ -71,7 +73,17 @@
 		//保存符号
 		std::hash_map<String,struct symbol>m;
 
+		//整个表所有标识符的大小
+		int size;
+
 	}* Table;
+
+	struct label{
+		String name;
+		bool defined;
+		Coordinate src;
+		int id;
+	};
 
 //<exported typedefs>
 //<exported functions>
@@ -84,18 +96,22 @@
 	//val是这个枚举常量的常量值
 	//t是这个枚举常量的类型
 	//c是这个符号出现的位置
-	Symbol newEnumConst(String name,int val,struct type* t,Coordinate c);
-
+	Symbol newEnumConst(String&name,int val,struct type* t,Coordinate c);
+	
 	//找到名字叫name的标识符
 	//没找到就返回NULL
-	Symbol findSymbol(String name);
+	Symbol findSymbol(String&name);
+	
+	//找到名字叫name的常量标识符
+	//没找到就返回NULL
+	Symbol findConstSymbol(String&name);
 
 	//新定义一个标识符
 	//name是这个标识符的名字
 	//t是这个标识符的类型
 	//s是这个标识符的存储类型
 	//c是这个符号出现的位置
-	Symbol newSymbol(String name,type* t,enum SCLASS s,Coordinate c);
+	Symbol newSymbol(String&name,type* t,enum SCLASS s,Coordinate c);
 
 	//告诉符号表,进入了一个作用域
 	void enterScope();
@@ -107,16 +123,30 @@
 	//向符号表申请一个临时变量
 	Symbol newTemp();
 
+	//查询标签表是否有名叫name的标签
+	//如果有,返回id>0,如果没有返回0
+	int findLabel(String&name);
+
+	//添加一个标签,并返回一个id
+	//defined默认为0,如果是定义,需手动设为1
+	int newLabel(String&name);
+
+	//给后端使用,给一个id,返回一个标签结构
+	struct label getLabel(int id);
+
 //<exported data>
 
-	// //静态或常量
-	// extern Table constants;
 	// //声明为extern的标识符
 	// extern Table externals;
 	// //保存具有文件作用域的标识符
 	// extern Table globals;
-
-	//标识符
-	extern Table idt;
 	// //level和对应的表表示了一个作用域
 	// extern int level;
+	
+	//静态或常量
+	extern Table constants;
+	//标识符
+	extern Table idt;
+
+	//语义栈
+	extern std::stack<Symbol> sem;

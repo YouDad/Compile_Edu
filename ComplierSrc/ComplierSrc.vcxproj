@@ -75,6 +75,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BackEnd.cpp" />
     <ClCompile Include="CommonHead.cpp" />
     <ClCompile Include="LexicalAnalyzer.cpp" />
     <ClCompile Include="sym.cpp" />
@@ -82,6 +83,7 @@
     <ClCompile Include="types.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BackEnd.h" />
     <ClInclude Include="CommonHead.h" />
     <ClInclude Include="LexicalAnalyzer.h" />
     <ClInclude Include="sym.h" />
