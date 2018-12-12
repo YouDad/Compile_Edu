@@ -15,18 +15,6 @@ const char* op_str[]={
 Symbol eax,ecx;
 //<functions>
 
-//后端初始化函数
-void backEndInit(){
-	fobj=fopen("_a.o.txt","w");
-	fasm=fopen("_a.asm.txt","w");
-	asmsay("includelib kernel32.lib");
-	asmsay(".model flat,stdcall");
-	asmsay("ExitProcess proto,dwExitCode:dword");
-	asmsay(".code");
-	asmsay("main proc");
-	asmsay("\tmov ebp,offset auto");
-}
-
 //两个重命名函数,明确语义,自动换行,就像puts
 void objsay(const char* fmt,...){
     va_list ap;
@@ -39,8 +27,20 @@ void asmsay(const char* fmt,...){
     va_list ap;
     va_start(ap,fmt);
 	vfprintf(fasm,fmt,ap);
-	fprintf(fobj,"\n");
+	fprintf(fasm,"\n");
     va_end(ap);
+}
+
+//后端初始化函数
+void backEndInit(){
+	fobj=fopen("_a.o.txt","w");
+	fasm=fopen("_a.asm.txt","w");
+	asmsay("includelib kernel32.lib");
+	asmsay(".model flat,stdcall");
+	asmsay("ExitProcess proto,dwExitCode:dword");
+	asmsay(".code");
+	asmsay("main proc");
+	asmsay("\tmov ebp,offset auto");
 }
 
 //告诉后端,编译完成,发送结束四元式
