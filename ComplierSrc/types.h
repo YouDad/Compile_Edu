@@ -29,7 +29,8 @@ enum TYPE{
 	TYPE_FLOAT,TYPE_DOUBLE,//两个浮点类型,以上都是算术类型
 	TYPE_ARRAY,TYPE_STRUCT,TYPE_UNION,TYPE_POINTER,TYPE_FUNCTION,//有kid域的类型
 	TYPE_VOID,//空类型
-	TYPE_CONST=128//常量类型
+	TYPE_STATIC,=64,//静态存储类型
+	TYPE_CONST=128//常量存储类型
 };
 //<exported typedefs>
 //<exported functions>
