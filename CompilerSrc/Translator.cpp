@@ -1,109 +1,53 @@
 #include"Translator.h"
 //<macros>
-#define IN(str) ret++;if(inFirst(str))return ret
-#define EQ(op)  ret++;if(op==t)return ret
 //<data>
 std::map<String,std::map<int,int>>m;
 //<functions>
-
-int xinFirst(const char*f){
-	int ret=0;
-	if(f=="Start"){
-		IN("Store");IN("Type");EQ(TYPEDEF);EQ(ENUM);EQ(VOLATILE);
-	}else if(f=="Sents"){
-		EQ(ID);IN("Sent");
-	}else if(f=="BSent"){
-		IN("Sent");EQ('{');
-	}else if(f=="BSent_bc"){
-		IN("BSent");EQ(BREAK);EQ(CONTINUE);
-	}else if(f=="Sent"){
-		IN("Store");IN("Type");EQ(GOTO);EQ(RETURN);
-		EQ(TYPEDEF);EQ(ENUM);EQ(FOR);EQ(IF);IN("Expr");
-	}else if(f=="Store"){
-		EQ(AUTO);EQ(CONST);EQ(STATIC);EQ(EXTERN);
-	}else if(f=="IDevList"){
-		EQ('*');
-	}else if(f=="IDecList"){
-		EQ(ID);
-	}else if(f=="Type"){
-		EQ(STRUCT);EQ(UNION);EQ(DOUBLE);EQ(FLOAT);
-		EQ(VOID);EQ(SIGNED);EQ(UNSIGNED);EQ(INT);
-		EQ(LONG);EQ(SHORT);EQ(CHAR);EQ(ENUM);
-	}else if(f=="StructDim"){
-		EQ('{');
-	}else if(f=="SdimList"){
-		IN("Field");
-	}else if(f=="Field"){
-		EQ(AUTO);EQ(CONST);EQ(STATIC);IN("Type");
-	}else if(f=="IDList"){
-		EQ('*');
-	}else if(f=="Expr"){
-		IN("Aexpr");
-	}else if(f=="Aexpr"){
-		IN("Cexpr");
-	}else if(f=="Aop"){
-		EQ('+');EQ('-');EQ('*');EQ('/');
-		EQ('%');EQ('<');EQ('>');EQ('&');
-		EQ('^');EQ('|');EQ('=');
-	}else if(f=="Cexpr"){
-		IN("Bexpr");
-	}else if(f=="Bexpr"){
-		IN("Uexpr");
-	}else if(f=="Bop"){
-		EQ('|');EQ('&');EQ('^');EQ('=');
-		EQ('!');EQ('<');EQ('>');EQ('+');
-		EQ('-');EQ('*');EQ('/');EQ('%');
-	}else if(f=="Uexpr"){
-		EQ(ID);EQ(ICON);EQ(FCON);EQ(SCON);
-		IN("Uop");EQ(SIZEOF);EQ('(');
-	}else if(f=="Uop"){
-		EQ('+');EQ('-');EQ('&');EQ('*');
-		EQ('~');EQ('!');
-	}else if(f=="Pop"){
-		EQ('(');EQ('.');EQ('-');EQ('+');
-	}else{
-		assert(0);
-	}
-	return 0;
-}
+void expect(int token);void BSent();void Store();
+void IDevList();void IDecList();void Sent();void Expr();
+void Pop();void Uop();
+//void ConstExpr();
+void StructDim();void SdimList();void Field();void IDList();
+void Aexpr();void Cexpr();void Aop();void Bexpr();
+void Bop();void Type();void Uexpr();void Sents();
 
 int trans(char*s){
 		 if(strcmp(s,"AUTO"))return AUTO;
-	else if(strcmp(s,"BREAK")return BREAK;
-	else if(strcmp(s,"CASE")return CASE;
-	else if(strcmp(s,"CHAR")return CHAR;
-	else if(strcmp(s,"CONST")return CONST;
-	else if(strcmp(s,"CONTINUE")return CONTINUE;
-	else if(strcmp(s,"DEFAULT")return DEFAULT;
-	else if(strcmp(s,"DO")return DO;
-	else if(strcmp(s,"DOUBLE")return DOUBLE;
-	else if(strcmp(s,"ELSE")return ELSE;
-	else if(strcmp(s,"ENUM")return ENUM;
-	else if(strcmp(s,"EXTERN")return EXTERN;
-	else if(strcmp(s,"FLOAT")return FLOAT;
-	else if(strcmp(s,"FOR")return FOR;
-	else if(strcmp(s,"GOTO")return GOTO;
-	else if(strcmp(s,"IF")return IF;
-	else if(strcmp(s,"INT")return INT;
-	else if(strcmp(s,"LONG")return LONG;
-	else if(strcmp(s,"RETURN")return RETURN;
-	else if(strcmp(s,"SHORT")return SHORT;
-	else if(strcmp(s,"SIGNED")return SIGNED;
-	else if(strcmp(s,"SIZEOF")return SIZEOF;
-	else if(strcmp(s,"STATIC")return STATIC;
-	else if(strcmp(s,"STRUCT")return STRUCT;
-	else if(strcmp(s,"SWITCH")return SWITCH;
-	else if(strcmp(s,"TYPEDEF")return TYPEDEF;
-	else if(strcmp(s,"UNSIGNED")return UNSIGNED;
-	else if(strcmp(s,"VOID")return VOID;
-	else if(strcmp(s,"WHILE")return WHILE;
-	else if(strcmp(s,"REGISTER")return REGISTER;
-	else if(strcmp(s,"UNION")return UNION;
-	else if(strcmp(s,"VOLATILE")return VOLATILE;
-	else if(strcmp(s,"ID")return ID;
-	else if(strcmp(s,"ICON")return ICON;
-	else if(strcmp(s,"FCON")return FCON;
-	else if(strcmp(s,"SCON")return SCON;
+	else if(strcmp(s,"BREAK"))return BREAK;
+	else if(strcmp(s,"CASE"))return CASE;
+	else if(strcmp(s,"CHAR"))return CHAR;
+	else if(strcmp(s,"CONST"))return CONST;
+	else if(strcmp(s,"CONTINUE"))return CONTINUE;
+	else if(strcmp(s,"DEFAULT"))return DEFAULT;
+	else if(strcmp(s,"DO"))return DO;
+	else if(strcmp(s,"DOUBLE"))return DOUBLE;
+	else if(strcmp(s,"ELSE"))return ELSE;
+	else if(strcmp(s,"ENUM"))return ENUM;
+	else if(strcmp(s,"EXTERN"))return EXTERN;
+	else if(strcmp(s,"FLOAT"))return FLOAT;
+	else if(strcmp(s,"FOR"))return FOR;
+	else if(strcmp(s,"GOTO"))return GOTO;
+	else if(strcmp(s,"IF"))return IF;
+	else if(strcmp(s,"INT"))return INT;
+	else if(strcmp(s,"LONG"))return LONG;
+	else if(strcmp(s,"RETURN"))return RETURN;
+	else if(strcmp(s,"SHORT"))return SHORT;
+	else if(strcmp(s,"SIGNED"))return SIGNED;
+	else if(strcmp(s,"SIZEOF"))return SIZEOF;
+	else if(strcmp(s,"STATIC"))return STATIC;
+	else if(strcmp(s,"STRUCT"))return STRUCT;
+	else if(strcmp(s,"SWITCH"))return SWITCH;
+	else if(strcmp(s,"TYPEDEF"))return TYPEDEF;
+	else if(strcmp(s,"UNSIGNED"))return UNSIGNED;
+	else if(strcmp(s,"VOID"))return VOID;
+	else if(strcmp(s,"WHILE"))return WHILE;
+	else if(strcmp(s,"REGISTER"))return REGISTER;
+	else if(strcmp(s,"UNION"))return UNION;
+	else if(strcmp(s,"VOLATILE"))return VOLATILE;
+	else if(strcmp(s,"ID"))return ID;
+	else if(strcmp(s,"ICON"))return ICON;
+	else if(strcmp(s,"FCON"))return FCON;
+	else if(strcmp(s,"SCON"))return SCON;
 	else{
 		char c;
 		sscanf(s,"'%c'",&c);
