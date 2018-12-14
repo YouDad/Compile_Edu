@@ -5,9 +5,10 @@
 #include<assert.h>
 #include<hash_map>
 #include<string>
+#include<vector>
 #include<stack>
 
-
+#define Vector std::vector
 typedef std::string String;
 void error(char* fmt,...);
 

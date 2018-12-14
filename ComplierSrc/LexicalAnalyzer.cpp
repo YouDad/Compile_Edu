@@ -262,11 +262,11 @@ int getToken(){
 					tval.addressed=0;
 					//识别u后缀
 					if(nowChar=='u'||nowChar=='U'){
-						tval.type=unsignedtype;
+						tval.type=btot(TYPE_UINT);
 						token+=nowChar;getChar();
 						tval.u.c.v.u=v;
 					}else{
-						tval.type=inttype;
+						tval.type=btot(TYPE_INT);
 						tval.u.c.v.i=v;
 					}
 					return ICON;
@@ -288,11 +288,11 @@ int getToken(){
 					tval.addressed=0;
 					//识别u后缀
 					if(nowChar=='u'||nowChar=='U'){
-						tval.type=unsignedtype;
+						tval.type=btot(TYPE_UINT);
 						token+=nowChar;getChar();
 						tval.u.c.v.u=v;
 					}else{
-						tval.type=inttype;
+						tval.type=btot(TYPE_INT);
 						tval.u.c.v.i=v;
 					}
 					return ICON;
@@ -311,11 +311,11 @@ int getToken(){
 				tval.addressed=0;
 				//识别u后缀
 				if(nowChar=='u'||nowChar=='U'){
-					tval.type=unsignedtype;
+					tval.type=btot(TYPE_UINT);
 					token+=nowChar;getChar();
 					tval.u.c.v.u=v;
 				}else{
-					tval.type=inttype;
+					tval.type=btot(TYPE_INT);
 					tval.u.c.v.i=v;
 				}
 				return ICON;
@@ -352,25 +352,24 @@ int getToken(){
 					token+=nowChar;getChar();
 				}
 			}
-			{
+			{//<处理浮点常量,字符串常量,和浮点操作>
 				tval.addressed=1;
 				if(nowChar=='f'||nowChar=='F'){
 					token+=nowChar;getChar();
 					float vf=0;
 					sscanf(token.c_str(),"%f",&vf);
 					tval.u.c.v.f=vf;
-					tval.type=floattype;
+					tval.type=btot(TYPE_FLOAT);
 				}else{
 					double vf=0;
 					sscanf(token.c_str(),"%lf",&vf);
 					tval.u.c.v.d=vf;
-					tval.type=doubletype;
+					tval.type=btot(TYPE_DOUBLE);
 				}
 				return FCON;
 			}
 		//识别字符串常量
-		case '"':
-			{
+		case '"':{
 				token+=nowChar;getChar();
 				//escape代表是否遇到了转义字符
 				bool escape=false;
@@ -418,7 +417,7 @@ int getToken(){
 				token+=nowChar;getChar();
 				int v=0;
 				tval.addressed=0;
-				tval.type=inttype;
+				tval.type=btot(TYPE_INT);
 				if(token[1]=='\\'){
 					//对于转义字符的识别
 					switch(token[2]){

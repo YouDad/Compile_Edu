@@ -3,4 +3,3 @@ ComplierSrc/Debug/*
 Debug/*
 *.suo
 ComplierSrc.*
-!ComplierSrc.sln

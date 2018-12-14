@@ -19,6 +19,7 @@
 		float f;
 		double d;
 		void* p;
+		unsigned long long uu;
 	}Value;
 
 	typedef struct symbol{
@@ -58,30 +59,31 @@
 	}* Symbol;
 
 	//注:在第k层声明的局部变量,其scope域等于LOCAL+k
-	enum SCOPE{SCOPE_CONSTANTS=1,SCOPE_GLOBAL,SCOPE_PARAM,SCOPE_LOCAL};//scope
+	enum SCOPE{SCOPE_CONST=1,SCOPE_STATIC,SCOPE_GLOBAL,SCOPE_PARAM,SCOPE_LOCAL};//scope
 
 	enum SCLASS{SCLASS_AUTO=1,SCLASS_EXTERN,SCLASS_TYPEDEF,SCLASS_CONST,SCLASS_STATIC};//sclass
 
-	typedef struct table{
-
+	//符号表类型
+	typedef struct symbolTable{
 		//作用域
 		int level;
-
 		//外层作用域对应的table
-		struct table* previous;
-
+		struct symbolTable* previous;
 		//保存符号
 		std::hash_map<String,struct symbol>m;
-
-		//整个表所有标识符的大小
+		//整个表所有符号的大小
 		int size;
+	}* SymbolTable;
 
-	}* Table;
-
+	//标签类型
 	struct label{
+		//标签名
 		String name;
+		//是否被定义
 		bool defined;
+		//在文中出现的位置
 		Coordinate src;
+		//标签id
 		int id;
 	};
 
@@ -90,6 +92,10 @@
 
 	//符号表初始化函数
 	void symInit();
+
+	//新定义一个浮点常量的符号
+	//会把这个符号加到常量表中
+	Symbol newFloatConst(Symbol s);
 
 	//新定义一个枚举常量的标识符
 	//name是这个枚举常量的名字
@@ -143,10 +149,12 @@
 	// //level和对应的表表示了一个作用域
 	// extern int level;
 	
-	//静态或常量
-	extern Table constants;
+	//常量
+	extern SymbolTable constTable;
+	//静态
+	extern SymbolTable staticTable;
 	//标识符
-	extern Table idt;
+	extern SymbolTable identifierTable;
 
 	//语义栈
 	extern std::stack<Symbol> sem;
