@@ -4,7 +4,8 @@
 //<exported types>
 //<exported typedefs>
 //<exported functions>
-int inFirst(const char*f);
+void initTranslator();
+int inFirst(String s);
 void Start();
 void BSent();
 void Store();
@@ -15,7 +16,7 @@ void Expr();
 void Pop();
 void Uop();
 void BSent_bc();
-void ConstExpr();
+//void ConstExpr();
 void StructDim();
 void SdimList();
 void Field();

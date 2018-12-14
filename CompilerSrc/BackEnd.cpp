@@ -233,6 +233,7 @@ void sendIf(int ifId,enum IF_STATE state){
 	}
 }
 
+void sendFloatOp(enum OP op,Symbol first,Symbol second,Symbol result);
 //告诉后端,生成(op,first,second,result)这样的四元式
 void sendOp(enum OP op,Symbol first,Symbol second,Symbol result){
 	objSay("(%s,%s,%s,%s)",op_str[op],first->name.c_str(),
@@ -480,7 +481,7 @@ BinaryOperator:
 		asmSay("f%sstp %s",str2,address(result));
 		break;
 	case AND:
-	case OR:
+	case OR:;
 
 /*
 fld         qword ptr [x]  

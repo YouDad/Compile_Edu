@@ -7,6 +7,7 @@
 #include<string>
 #include<vector>
 #include<stack>
+#include<map>
 
 #define Vector std::vector
 typedef std::string String;
@@ -17,6 +18,7 @@ void error(char* fmt,...);
 #include"types.h"
 #include"sym.h"
 #include"LexicalAnalyzer.h"
+#include"Translator.h"
 
 
 
