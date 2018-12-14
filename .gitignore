@@ -3,3 +3,5 @@ CompilerSrc/Debug/*
 Debug/*
 *.suo
 CompilerSrc.*
+x64/*
+.vs/*
