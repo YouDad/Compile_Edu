@@ -136,24 +136,24 @@ const char* address(Symbol&s){
 	static char str[50];
 	if(s->sclass==SCLASS_STATIC){
 		//静态区变量
-		sprintf("%s static[%s]",whatPtr(sz),asmHex(of));
+		sprintf(str,"%s static[%s]",whatPtr(sz),asmHex(of));
 	}else if(s->sclass==SCLASS_CONST){
 		if(s->addressed){
 			//常量区常量
 			if(isFloat(s->type->op)){
 				//浮点常量
-				sprintf("%s const[%s]",whatPtr(sz),asmHex(of));
+				sprintf(str,"%s const[%s]",whatPtr(sz),asmHex(of));
 			}else{
 				//字符串常量
-				sprintf("%s const[%s]",whatPtr(1),asmHex(of));
+				sprintf(str,"%s const[%s]",whatPtr(1),asmHex(of));
 			}
 		}else{
 			//指令常量
-			sprintf("%s",asmHex(s->u.c.v.u));
+			sprintf(str,"%s",asmHex(s->u.c.v.u));
 		}
 	}else{
 		//动态区变量
-		sprintf("%s ebp[%s]",whatPtr(sz),asmHex(of));
+		sprintf(str,"%s ebp[%s]",whatPtr(sz),asmHex(of));
 	}
 	return str;
 }
