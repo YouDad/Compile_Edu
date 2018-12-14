@@ -4,7 +4,7 @@
 //<exported types>
 //<exported typedefs>
 //<exported functions>
-bool inFirst(String f);
+int inFirst(const char*f);
 void Start();
 void BSent();
 void Store();
@@ -25,9 +25,8 @@ void Cexpr();
 void Aop();
 void Bexpr();
 void Bop();
-void();
-void();
-void();
-void();
-void();
+void expect(int token);
+void Type();
+void Uexpr();
+void Sents();
 //<exported data>

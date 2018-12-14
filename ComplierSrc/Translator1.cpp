@@ -241,8 +241,12 @@ out:
 		Expr();
 	}
 	//__setval
-	expect(',');
-	IDevList();
+	if (t == ',')
+	{
+		expect(',');
+		IDevList();
+	}
+
 }
 
 void IDecList()
@@ -266,7 +270,7 @@ void Type()
 {
 	switch (inFirst("Type"))
 	{
-	case1:
+	case 1:
 		expect(STRUCT);
 		if (t == ID)
 		{
@@ -761,12 +765,56 @@ void Pop()
 
 
 //´íÎóÆÚ´ý
-void expect(int token){
+void expect(int token)
+{
 	if (t == token)
 		t = getToken();
 	else
-		//<?>
-		fprintf(stderr, "Error %d,%d:expected '?'\n", src.x, src.y);
+	{
+		
+		static char str[20];
+		switch (t) {
+		case INT:strcpy(str, "int"); break;
+		case AUTO:strcpy(str, "auto"); break;
+		case BREAK:strcpy(str, "break"); break;
+		case CASE:strcpy(str, "case"); break;
+		case CHAR:strcpy(str, "char"); break;
+		case CONST:strcpy(str, "const"); break;
+		case CONTINUE:strcpy(str, "continue"); break;
+		case DEFAULT:strcpy(str, "default"); break;
+		case DO:strcpy(str, "do"); break;
+		case DOUBLE:strcpy(str, "double"); break;
+		case ELSE:strcpy(str, "else"); break;
+		case ENUM:strcpy(str, "enum"); break;
+		case EXTERN:strcpy(str, "extern"); break;
+		case FLOAT:strcpy(str, "float"); break;
+		case FOR:strcpy(str, "for"); break;
+		case GOTO:strcpy(str, "goto"); break;
+		case IF:strcpy(str, "if"); break;
+		case LONG:strcpy(str, "long"); break;
+		case RETURN:strcpy(str, "return"); break;
+		case SHORT:strcpy(str, "short"); break;
+		case SIGNED:strcpy(str, "signed"); break;
+		case SIZEOF:strcpy(str, "sizeof"); break;
+		case STATIC:strcpy(str, "static"); break;
+		case STRUCT:strcpy(str, "struct"); break;
+		case SWITCH:strcpy(str, "switch"); break;
+		case TYPEDEF:strcpy(str, "typedef"); break;
+		case UNSIGNED:strcpy(str, "unsigned"); break;
+		case VOID:strcpy(str, "void"); break;
+		case WHILE:strcpy(str, "while"); break;
+		case REGISTER:strcpy(str, "register"); break;
+		case UNION:strcpy(str, "union"); break;
+		case VOLATILE:strcpy(str, "volatile"); break;
+		case ID:strcpy(str, "id"); break;
+		case ICON:strcpy(str, "icon"); break;
+		case FCON:strcpy(str, "fcon"); break;
+		case SCON:strcpy(str, "scon"); break;
+		default:
+			sprintf(str, "'%c'", t);
+		}
+		fprintf(stderr, "Error %d,%d:expected %s\n", src.x, src.y,str);
+	}
 }
 
 
