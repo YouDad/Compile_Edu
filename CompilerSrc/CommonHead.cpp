@@ -1,5 +1,5 @@
 #include"CommonHead.h"
-void error(char* fmt,...){
+void error(const char* fmt,...){
 	//fprintf(stderr,"%s:%d:%d: ",src.file,src.x,src.y);
 	fprintf(stderr,"%d:%d: ",src.x,src.y);
 	va_list ap;

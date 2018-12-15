@@ -244,19 +244,19 @@ void Sent(){
 void Store(){
 	switch(inFirst("Store")){
 	case 1:
-		expect(AUTO);
+		expect(EXTERN);
 		//_setstoreclass
 		break;
 	case 2:
-		expect(CONST);
+		expect(AUTO);
 		//_setstoreclass
 		break;
 	case 3:
-		expect(STATIC);
+		expect(CONST);
 		//_setstoreclass
 		break;
 	case 4:
-		expect(EXTERN);
+		expect(STATIC);
 		//_setstoreclass
 		break;
 	}
@@ -350,26 +350,31 @@ void Type(){
 		// _setvarunsigned
 		break;
 	case 8:
-		expect(INT);
-		//_setvartype
+		switch (t)
+		{
+		case CHAR:
+			expect(CHAR);
+			//_setvartype
+			break; 
+		case SHORT:
+			expect(SHORT);
+			if (t == INT)
+				expect(INT);
+			//_setvartype
+			break;
+		case LONG:
+			expect(LONG);
+			if (t == INT)
+				expect(INT);
+			//_setvartype
+			break;
+		case INT:
+			expect(INT);
+			//_setvartype
+			break;
+		}
 		return;
 	case 9:
-		expect(LONG);
-		if(t==INT)
-			expect(INT);
-		//_setvartype
-		return;
-	case 10:
-		expect(SHORT);
-		if(t==INT)
-			expect(INT);
-		//_setvartype
-		return;
-	case 11:
-		expect(CHAR);
-		//_setvartype
-		return;
-	case 12:
 		expect(ENUM);
 		expect(ID);
 		return;
@@ -495,9 +500,9 @@ void Aop(){
 		expect('=');
 		break;
 	case 3:
-		expect('+');
-		//__setop
 		expect('*');
+		//__setop
+		expect('=');
 		break;
 	case 4:
 		expect('/');
@@ -527,12 +532,12 @@ void Aop(){
 		expect('=');
 		break;
 	case 9:
-		expect('^');
+		expect('|');
 		//__setop
 		expect('=');
 		break;
 	case 10:
-		expect('|');
+		expect('^');
 		//__setop
 		expect('=');
 		break;

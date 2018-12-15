@@ -33,7 +33,7 @@ void mapInit(){
 		if(i==' ')map[i]|=BLANK|ANSIC;
 		if(i=='\n')map[i]|=NEWLINE|ANSIC;
 		map['_']|=IDPART;
-		for(char*p="~!%^&*()_+-=[]{}\\|;':\",.<>/?";*p;p++)
+		for(const char*p="~!%^&*()_+-=[]{}\\|;':\",.<>/?";*p;p++)
 			map[*p]|=ANSIC;
 	}
 }
@@ -102,7 +102,7 @@ int getToken(){
 			tsym=findSymbol(token);
 			return ID;
 #define recognize(string,RET) \
-	for(char*p=string;*p;p++){\
+	for(const char*p=string;*p;p++){\
 		if(nowChar==*p){\
 			token+=nowChar;getChar();\
 		}else if(map[nowChar]&(DIGIT|LETTER)){\

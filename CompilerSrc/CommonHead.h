@@ -11,7 +11,7 @@
 
 #define Vector std::vector
 typedef std::string String;
-void error(char* fmt,...);
+void error(const char* fmt,...);
 
 
 #include"BackEnd.h"
