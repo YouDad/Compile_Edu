@@ -57,9 +57,9 @@ void sendEnd(){
 	for(int i=0;i<constVector.size();i++){
 		Symbol&now=constVector[i];
 		int op=now->type->op;
-		if(now->type->op==TYPE_FLOAT){
+		if(op==TYPE_FLOAT){
 			asmSay("\t\tdd %u",now->u.c.v.u);
-		}else if(now->type->op==TYPE_DOUBLE){
+		}else if(op==TYPE_DOUBLE){
 			asmSay("\t\tdq %ull",now->u.c.v.uu);
 		}else{
 			asmSay("\t\tdb %s",
@@ -247,15 +247,15 @@ void sendOp(enum OP op,Symbol first,Symbol second,Symbol result){
 	int ssz=second->type->size;
 	int rsz=result->type->size;
 	switch(op){
-	case ADD:case SUB:case AND:case OR:
-	case BTA:case BTO:case BTX:{
+	case _ADD:case _SUB:case _AND:case _OR:
+	case _BTA:case _BTO:case _BTX:{
 			const char* str="or";
 			switch(op){
-				case ADD:str="add";break;
-				case SUB:str="sub";break;
-				case AND:str="and";break;
-				case BTA:str="and";break;
-				case BTX:str="xor";break;
+				case _ADD:str="add";break;
+				case _SUB:str="sub";break;
+				case _AND:str="and";break;
+				case _BTA:str="and";break;
+				case _BTX:str="xor";break;
 			}
 			if(eax!=first){
 				eax=first;
@@ -278,7 +278,7 @@ void sendOp(enum OP op,Symbol first,Symbol second,Symbol result){
 			);
 			break;
 		}
-	case SHL:case SHR:
+	case _SHL:case _SHR:
 		if(eax!=first){
 			eax=first;
 			asmSay("\tmov %s,%s",
@@ -306,7 +306,7 @@ void sendOp(enum OP op,Symbol first,Symbol second,Symbol result){
 			whatAReg(rsz)
 		);
 		break;
-	case MUL:
+	case _MUL:
 		if(eax!=first){
 			eax=first;
 			asmSay("\tmov %s,%s",
@@ -327,7 +327,7 @@ void sendOp(enum OP op,Symbol first,Symbol second,Symbol result){
 			whatAReg(rsz)
 		);
 		break;
-	case DIV:
+	case _DIV:
 		if(eax!=first){
 			eax=first;
 			asmSay("\tmov eax,%s",address(first));
@@ -347,7 +347,7 @@ void sendOp(enum OP op,Symbol first,Symbol second,Symbol result){
 			whatAReg(rsz)
 		);
 		break;
-	case MOD:
+	case _MOD:
 		if(eax!=first){
 			eax=first;
 			asmSay("\tmov eax,%s",address(first));
@@ -367,7 +367,7 @@ void sendOp(enum OP op,Symbol first,Symbol second,Symbol result){
 			whatDReg(rsz)
 		);
 		break;
-	case NEG:
+	case _NEG:
 		if(first!=result){
 			eax=first;
 			asmSay("\tmov %s,%s",
@@ -386,29 +386,29 @@ void sendOp(enum OP op,Symbol first,Symbol second,Symbol result){
 			asmSay("\tneg %s",address(result));
 		}
 		break;
-	case BTN:case INC:case DEC:
+	case _BTN:case _INC:case _DEC:
 		asmSay("\t%s %s",
-			op==INC?"inc":op==NOT?"not":"dec",
+			op==_INC?"inc":op==_NOT?"not":"dec",
 			address(first)
 		);
 		break;
-	case LEA:
+	case _LEA:
 		asmSay("\tlea eax,%s",address(first));
 		asmSay("\tmov %s,%s",address(result),
 			whatAReg(rsz)
 		);
 		break;
-	case EQU:case NEQ:case GTR:case LES:
-	case GEQ:case LEQ:{
+	case _EQU:case _NEQ:case _GTR:case _LES:
+	case _GEQ:case _LEQ:{
 			const char* str="je";
 			//是否为无符号数
 			bool usign=isUnsigned(first->type->op)&&isUnsigned(second->type->op);
 			switch(op){
-			case NEQ:str="jne";break;
-			case GTR:str=usign?"ja":"jg";break;
-			case LES:str=usign?"jb":"jl";break;
-			case GEQ:str=usign?"jae":"jge";break;
-			case LEQ:str=usign?"jbe":"jle";break;
+			case _NEQ:str="jne";break;
+			case _GTR:str=usign?"ja":"jg";break;
+			case _LES:str=usign?"jb":"jl";break;
+			case _GEQ:str=usign?"jae":"jge";break;
+			case _LEQ:str=usign?"jbe":"jle";break;
 			}
 			asmSay("\tmov %s,%s",
 				whatPtr(fsz),
@@ -426,7 +426,7 @@ void sendOp(enum OP op,Symbol first,Symbol second,Symbol result){
 			);
 			break;
 		}
-	case NOT:
+	case _NOT:
 		asmSay("\tmov %s,%s",
 			whatAReg(fsz),
 			address(first)
@@ -440,7 +440,7 @@ void sendOp(enum OP op,Symbol first,Symbol second,Symbol result){
 			whatBReg(fsz)
 		);
 		break;
-	case MOV:
+	case _MOV:
 		if(eax!=first){
 			eax=first;
 			asmSay("\tmov %s,%s",
@@ -467,10 +467,10 @@ void sendFloatOp(enum OP op,Symbol first,Symbol second,Symbol result){
 	int rsz=result->type->size;
 	const char* str1,* str2,* str3;
 	switch(op){
-	case ADD:str1="fadd";goto BinaryOperator;
-	case SUB:str1="fsub";goto BinaryOperator;
-	case MUL:str1="fmul";goto BinaryOperator;
-	case DIV:str1="fdiv";goto BinaryOperator;
+	case _ADD:str1="fadd";goto BinaryOperator;
+	case _SUB:str1="fsub";goto BinaryOperator;
+	case _MUL:str1="fmul";goto BinaryOperator;
+	case _DIV:str1="fdiv";goto BinaryOperator;
 BinaryOperator:
 		str2=isFloat(second->type->op)?"":"i";
 		asmSay("f%sld %s",str2,address(second));
@@ -480,8 +480,8 @@ BinaryOperator:
 		str2=isFloat(result->type->op)?"":"i";
 		asmSay("f%sstp %s",str2,address(result));
 		break;
-	case AND:
-	case OR:;
+	case _AND:
+	case _OR:;
 
 /*
 fld         qword ptr [x]  

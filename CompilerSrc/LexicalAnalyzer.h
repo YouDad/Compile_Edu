@@ -18,10 +18,14 @@
 		FLOAT,FOR,GOTO,IF,INT,LONG,RETURN,SHORT,
 		SIGNED,SIZEOF,STATIC,STRUCT,SWITCH,TYPEDEF,
 		UNSIGNED,VOID,WHILE,REGISTER,UNION,VOLATILE,
-		ID,ICON,FCON,SCON
+		ID,ICON,FCON,SCON,
+		INC,DEC,ZZ,GEQ,LEQ,EQ,NEQ,//++,--,->,>=,<=,==,!=
+		OR,AND,SHL,SHR//&&,||,<<,>>
 	};//VOLATILE,REGISTER,UNION
 //<exported typedefs>
 //<exported functions>
+	//初始化词法分析器
+	extern void lexAnalyzerInit();
 	//返回下一个待处理的非空白字符
 	extern int getChar();
 	//返回下一个单词,可以是字符或枚举常量,关键字,预定义常量

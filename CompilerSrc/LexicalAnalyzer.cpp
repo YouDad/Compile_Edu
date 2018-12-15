@@ -15,6 +15,7 @@ struct symbol* tsym;
 Coordinate src;
 //掩码map[c]可以将字符c归为上面7种集合
 char map[256];
+//通常使用全局变量t保存当前单词
 int t;
 //<functions>
 void mapInit(){
@@ -37,17 +38,27 @@ void mapInit(){
 			map[*p]|=ANSIC;
 	}
 }
+void lexAnalyzerInit(){
+	mapInit();
+	t=getToken();
+}
 int getChar(){
 	lastChar=nowChar;
 	nowChar=getchar();
+	putchar(nowChar);
 	cols++;
 	if(lastChar>0&&map[lastChar]&NEWLINE)
 		line++,cols=1;
 	return nowChar;
 }
 int getToken(){
-	if(!map[' '])mapInit();
+	//if(token=="")
+	//	putchar(lastChar),putchar('\n');
+	//else printf("%s\n",token.c_str());
 	while(1){
+		//处理文件结束符
+		if(nowChar==-1)
+			return EOF;
 		//处理非ANSI C的字符
 		if(nowChar<0||(!(map[nowChar]&ANSIC))){
 			error("%c isn't ANSI C character",nowChar);
@@ -59,6 +70,19 @@ int getToken(){
 		token="";
 		src.x=line;
 		src.y=cols;
+		if(map[nowChar]&IDPART){
+			token+=nowChar;getChar();
+			while(map[nowChar]&IDPART){
+				token+=nowChar;getChar();
+			}
+			for(int i=0,j;i<ID-AUTO;i++){
+				for(j=0;j<token.size()&&keyword[i][j];j++)
+					if(token[j]!=keyword[i][j]+'a'-'A')
+						break;
+				if(!keyword[i][j]&&j==token.size())
+					return i+AUTO;
+			}return ID;
+		}
 		//根据首字符来识别不同token
 		switch(nowChar){
 		//注释或者是除号
@@ -82,168 +106,65 @@ int getToken(){
 			}else{
 				return '/';
 			}
-		case '~':case '!':case '%':case '^':case '&':case '*':case '(':
-		case ')':case '=':case '[':case ']':case '{':case '}':case '\\':
-		case '|':case ';':case ':':case ',':case '<':case '>':case '?':
-			return nowChar;
-		case 'h':case 'j':case 'k':case 'm':case 'n':case 'o':case 'p':case 'q':
-		case 'x':case 'y':case 'z':case 'A':case 'B':case 'C':case 'D':case 'E':
-		case 'F':case 'G':case 'H':case 'I':case 'J':case 'K':case 'M':case 'N':
-		case 'O':case 'P':case 'Q':case 'R':case 'S':case 'T':case 'U':case 'V':
-		case 'W':case 'X':case 'Y':case 'Z':case '_':
-		id:
-			if(map[nowChar]&IDPART){
-				token+=nowChar;getChar();
-				while(map[nowChar]&IDPART){
-					token+=nowChar;getChar();
-				}
-			}
-			//根据原文字符串得到(如果有的话)符号指针
-			tsym=findSymbol(token);
-			return ID;
-#define recognize(string,RET) \
-	for(const char*p=string;*p;p++){\
-		if(nowChar==*p){\
-			token+=nowChar;getChar();\
-		}else if(map[nowChar]&(DIGIT|LETTER)){\
-			goto id;\
-		}else{\
-			tsym=findSymbol(token);\
-			return ID;\
-		}\
-	}\
-	if(!(map[nowChar]&IDPART))\
-		return RET;\
-	else goto id;
-		//AUTO
-		case 'a':recognize("auto",AUTO);
-		//BREAK
-		case 'b':recognize("break",BREAK);
-		//CASE&CHAR&CONST&CONTINUE
-		case 'c':
-			token+=nowChar;getChar();
-			if(nowChar=='a'){
-				recognize("ase",CASE);
-			}else if(nowChar=='h'){
-				recognize("har",CHAR);
-			}else if(nowChar=='o'){
-				token+=nowChar;getChar();
-				if(nowChar=='n'){
-					token+=nowChar;getChar();
-					if(nowChar=='s'){
-						recognize("st",CONST);
-					}else if(nowChar=='t'){
-						recognize("tinue",CONTINUE);
-					}else goto id;
-				}else goto id;
-			}else goto id;
-		//DEFAULT&DO&DOUBLE
-		case 'd':
-			token+=nowChar;getChar();
-			if(nowChar=='e'){
-				recognize("efault",DEFAULT);
-			}else if(nowChar=='o'){
-				token+=nowChar;getChar();
-				if(map[nowChar]&IDPART){
-					recognize("uble",DOUBLE);
-				}else return DO;
-			}
-		//ELSE&ENUM&EXTERN
-		case 'e':
-			token+=nowChar;getChar();
-			switch(nowChar){
-			case 'l':recognize("lse",ELSE);
-			case 'n':recognize("num",ENUM);
-			case 'x':recognize("xtern",EXTERN);
-			default:goto id;
-			}
-		//FLOAT&FOR
-		case 'f':
-			token+=nowChar;getChar();
-			if(nowChar=='l'){
-				recognize("loat",FLOAT);
-			}else{
-				recognize("or",FOR);
-			}
-		//GOTO
-		case 'g':recognize("goto",GOTO);
-		//IF&INT
-		case 'i':
-			token+=nowChar;getChar();
-			if(nowChar=='n'){
-				recognize("nt",INT);
-			}else{
-				recognize("f",IF);
-			}
-		//LONG
-		case 'l':recognize("long",LONG);
-		//REGISTER&RETURN
-		case 'r':
-			token+=nowChar;getChar();
-			if(nowChar=='e'){
-				token+=nowChar;getChar();
-				if(nowChar=='g'){
-					recognize("gister",REGISTER);
-				}else{
-					recognize("turn",RETURN);
-				}
-			}else goto id;
-		//SHORT&SIGNED&SIZEOF&STATIC&STRUCT&SWITCH
-		case 's':
-			token+=nowChar;getChar();
-			switch(nowChar){
-			case 'h':recognize("hort",SHORT);
-			case 'i':token+=nowChar;getChar();
-				if(nowChar=='g'){
-					recognize("gned",SIGNED);
-				}else{
-					recognize("zeof",SIZEOF);
-				}
-			case 't':token+=nowChar;getChar();
-				if(nowChar=='a'){
-					recognize("atic",STATIC);
-				}else{
-					recognize("ruct",STRUCT);
-				}
-			case 'w':recognize("witch",SWITCH);
-			}
-		//TYPEDEF
-		case 't':recognize("typedef",TYPEDEF);
-		//UNION&UNSIGNED
-		case 'u':
-			token+=nowChar;getChar();
-			if(nowChar=='n'){
-				token+=nowChar;getChar();
-				if(nowChar=='i'){
-					recognize("ion",UNION);
-				}else{
-					recognize("signed",UNSIGNED);
-				}
-			}else goto id;
-		//VOID&VOLATILE
-		case 'v':
-			token+=nowChar;getChar();
-			if(nowChar=='o'){
-				token+=nowChar;getChar();
-				if(nowChar=='i'){
-					recognize("id",VOID);
-				}else{
-					recognize("latile",VOLATILE);
-				}
-			}else goto id;
-		//WHILE
-		case 'w':recognize("while",WHILE);
+		case '~':case '%':case '^':case '*':case '(':
+		case ')':case '[':case ']':case '{':case '}':
+		case ';':case ':':case ',':case '?':case '\\':
+			getChar();
+			return lastChar;
+		case '>':getChar();
+			if(nowChar==lastChar){
+				getChar();
+				return SHR;//>>
+			}else if(nowChar=='='){
+				getChar();
+				return GEQ;//>=
+			}return lastChar;//>
+		case '<':getChar();
+			if(nowChar==lastChar){
+				getChar();
+				return SHL;//<<
+			}else if(nowChar=='='){
+				getChar();
+				return LEQ;//<=
+			}return lastChar;//<
+		case '=':getChar();
+			if(nowChar==lastChar){
+				getChar();
+				return EQ;//==
+			}return lastChar;//=
+		case '!':getChar();
+			if(nowChar=='='){
+				getChar();
+				return NEQ;//!=
+			}return lastChar;//!
+		case '&':getChar();
+			if(nowChar==lastChar){
+				getChar();
+				return AND;//&&
+			}return lastChar;//&
+		case '|':getChar();
+			if(nowChar==lastChar){
+				getChar();
+				return OR;//||
+			}return lastChar;//|
+		case '+':
+			getChar();
+			if(nowChar==lastChar){
+				getChar();
+				return INC;//++
+			}return lastChar;//+
+		case '-':
+			getChar();
+			if(nowChar==lastChar){
+				getChar();
+				return DEC;//--
+			}else if(nowChar=='>'){
+				getChar();
+				return ZZ;//->
+			}return lastChar;//-
 		case '0':case '1':case '2':case '3':case '4':
 		case '5':case '6':case '7':case '8':case '9':
-		case '+':case '-':
 			token+=nowChar;getChar();
-			//识别数前的符号
-			if(lastChar=='+'||lastChar=='-'){
-				//处理不是数前面的加减号
-				if(!(map[nowChar]&DIGIT))
-					return nowChar;
-				token+=nowChar;getChar();
-			}
 			if(lastChar=='0'){
 				//0开头一定不是十进制数
 				if(nowChar=='x'||nowChar=='X'){
@@ -468,5 +389,6 @@ int getToken(){
 				return ICON;
 			}
 		}
+		assert(0);
 	}
 }

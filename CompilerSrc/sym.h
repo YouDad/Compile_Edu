@@ -103,11 +103,11 @@
 	//t是这个枚举常量的类型
 	//c是这个符号出现的位置
 	Symbol newEnumConst(String&name,int val,struct type* t,Coordinate c);
-	
+
 	//找到名字叫name的标识符
 	//没找到就返回NULL
 	Symbol findSymbol(String&name);
-	
+
 	//找到名字叫name的常量标识符
 	//没找到就返回NULL
 	Symbol findConstSymbol(String&name);
@@ -134,8 +134,8 @@
 	int findLabel(String&name);
 
 	//添加一个标签,并返回一个id
-	//defined默认为0,如果是定义,需手动设为1
-	int newLabel(String&name);
+	//默认是定义的标签,define代表这次声明是否是定义
+	int newLabel(String&name,int defined);
 
 	//给后端使用,给一个id,返回一个标签结构
 	struct label getLabel(int id);
@@ -146,9 +146,7 @@
 	// extern Table externals;
 	// //保存具有文件作用域的标识符
 	// extern Table globals;
-	// //level和对应的表表示了一个作用域
-	// extern int level;
-	
+
 	//常量
 	extern SymbolTable constTable;
 	//静态
@@ -156,5 +154,5 @@
 	//标识符
 	extern SymbolTable identifierTable;
 
-	//语义栈
-	extern std::stack<Symbol> sem;
+	//level和对应的表表示了一个作用域
+	extern int level;

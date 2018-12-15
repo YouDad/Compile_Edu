@@ -24,7 +24,12 @@ void typeInit(){
 	xx("unsigned int",TYPE_UINT,4);
 	xx("unsigned long",TYPE_UINT,4);
 	xx("unsigned long int",TYPE_UINT,4);
-	xx("unsigned",TYPE_UINT,4);
+	xx("signed char",TYPE_UCHAR,1);
+	xx("signed short",TYPE_USHORT,2);
+	xx("signed short int",TYPE_USHORT,2);
+	xx("signed int",TYPE_UINT,4);
+	xx("signed long",TYPE_UINT,4);
+	xx("signed long int",TYPE_UINT,4);
 	xx("char",TYPE_CHAR,1);
 	xx("short",TYPE_SHORT,2);
 	xx("short int",TYPE_SHORT,2);

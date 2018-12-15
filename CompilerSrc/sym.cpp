@@ -12,7 +12,6 @@
 	int level=SCOPE_GLOBAL;
 	std::hash_map<String,struct label>lbt;
 	int labelid=1;
-	std::stack<Symbol> sem;
 
 //<functions>
 
@@ -156,10 +155,11 @@ int findLabel(String&name){
 }
 
 //添加一个标签,并返回一个id
-int newLabel(String&name){
+//默认是定义的标签,define代表这次声明是否是定义
+int newLabel(String&name,int define=1){
 	if(findLabel(name)==0){
 		struct label tmp;
-		tmp.defined=0;
+		tmp.defined=define;
 		tmp.id=labelid++;
 		tmp.name=name;
 		tmp.src=src;
