@@ -484,23 +484,23 @@ BinaryOperator:
 	case _OR:;
 
 /*
-fld         qword ptr [x]  
-fldz  
-fucompp  
-fnstsw      ax  
-test        ah,44h  
-jnp         main+87h (11513D7h)  ;jp          main+0C2h (1151412h)  
-fld         qword ptr [y]  
-fldz  
-fucompp  
-fnstsw      ax  
-test        ah,44h  
-jnp         main+87h (11513D7h)  ;jp          main+0C2h (1151412h)  
-mov         dword ptr [ebp-124h],1  ;mov         dword ptr [ebp-124h],0  
-jmp         main+91h (11513E1h)  
-mov         dword ptr [fcmp],0  ;mov         dword ptr [ebp-124h],1  
-fild        dword ptr [ebp-124h]  
-fstp        qword ptr [z]  
+fld         qword ptr [x]
+fldz
+fucompp
+fnstsw      ax
+test        ah,44h
+jnp         main+87h (11513D7h)  ;jp          main+0C2h (1151412h)
+fld         qword ptr [y]
+fldz
+fucompp
+fnstsw      ax
+test        ah,44h
+jnp         main+87h (11513D7h)  ;jp          main+0C2h (1151412h)
+mov         dword ptr [ebp-124h],1  ;mov         dword ptr [ebp-124h],0
+jmp         main+91h (11513E1h)
+mov         dword ptr [fcmp],0  ;mov         dword ptr [ebp-124h],1
+fild        dword ptr [ebp-124h]
+fstp        qword ptr [z]
 */
 	}
 }
@@ -531,12 +531,16 @@ void tellVar(Symbol s){
 //通知后端,声明了一个t类型
 void tellType(struct type* t){
 	for(struct type*i=t->kid;i;i=i->next){
-		/*if(isConst(t)&&isInteger(t)){
+		if(isConst(t->op)&&isInteger(t->op)){
 			continue;
 		}
-		if(isConst(t)||isStatic(t)){
-			t->offset=constants->size;
-			constants->size+=t->size;
-		}*/
+		if(isConst(t->op)){
+			t->offset=constTable->size;
+			constTable->size+=t->size;
+		}
+		if(isStatic(t->op)){
+			t->offset=staticTable->size;
+			staticTable->size+=t->size;
+		}
 	}
 }

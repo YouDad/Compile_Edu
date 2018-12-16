@@ -1,0 +1,6 @@
+//INC,DEC,ZZ,GEQ,LEQ,EQ,NEQ,//++,--,->,>=,<=,==,!=
+//OR,AND,SHL,SHR,//&&,||,<<,>>
+//MUL_ASSIGN,DIV_ASSIGN,MOD_ASSIGN,ADD_ASSIGN,SUB_ASSIGN,//   *=,/=,%=,+=,-=
+//SHL_ASSIGN,SHR_ASSIGN,AND_ASSIGN,XOR_ASSIGN,OR_ASSIGN// <<=,>=,&=,^=,|=
+++ + -- -> >= <= == != = && || & | << >>
+*= * = =* /= %= += -= <<= >>= &= ^= |=

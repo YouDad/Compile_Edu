@@ -8,7 +8,8 @@ const char* keyword[]={"AUTO","BREAK","CASE","CHAR","CONST","CONTINUE",
 	"IF","INT","LONG","RETURN","SHORT","SIGNED","SIZEOF","STATIC","STRUCT",
 	"SWITCH","TYPEDEF","UNSIGNED","VOID","WHILE","REGISTER","UNION","VOLATILE",
 	"ID","ICON","FCON","SCON","INC","DEC","ZZ","GEQ","LEQ","EQ","NEQ","OR",
-	"AND","SHL","SHR",0};
+	"AND","SHL","SHR","MUL_ASSIGN","DIV_ASSIGN","MOD_ASSIGN","ADD_ASSIGN",
+	"SUB_ASSIGN","SHL_ASSIGN","SHR_ASSIGN","AND_ASSIGN","XOR_ASSIGN","OR_ASSIGN",0};
 //<functions>
 void expect(int token);void BSent();void Store();
 void IDevList();void IDecList();void Sent();void Expr();
@@ -617,7 +618,7 @@ void expect(int token){
 			"IF","INT","LONG","RETURN","SHORT","SIGNED","SIZEOF","STATIC","STRUCT",
 			"SWITCH","TYPEDEF","UNSIGNED","VOID","WHILE","REGISTER","UNION","VOLATILE",
 			"ID","ICON","FCON","SCON","++","--","->",">=","<=","==","!=","||",
-			"&&","<<",">>",0};
+			"&&","<<",">>","*=","/=","%=","+=","-=","<<=",">>=","&=","^=","|=",0};
 		static char str[20];
 		if(AUTO<=t&&t<=SHR){
 			strcpy(str,_keyword[t-AUTO]);

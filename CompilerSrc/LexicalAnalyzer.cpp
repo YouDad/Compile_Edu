@@ -1,21 +1,21 @@
 #include"LexicalAnalyzer.h"
 //<macros>
 //<data>
-//å•è¯çš„å­—ç¬¦ä¸²è¡¨ç¤ºå­˜åœ¨tokené‡Œ
+//µ¥´ÊµÄ×Ö·û´®±íÊ¾´æÔÚtokenÀï
 std::string token;
-//å½“å‰è¯»åˆ°çš„å­—ç¬¦åœ¨åŸæ–‡ä½ç½®
+//µ±Ç°¶Áµ½µÄ×Ö·ûÔÚÔ­ÎÄÎ»ÖÃ
 int line=1,cols=1;
-//tvalçš„ä½œç”¨åªæ˜¯ä¸ºgettokçš„è°ƒç”¨è€…æä¾›å¸¸é‡çš„ç±»å‹å’Œå€¼
+//tvalµÄ×÷ÓÃÖ»ÊÇÎªgettokµÄµ÷ÓÃÕßÌá¹©³£Á¿µÄÀàĞÍºÍÖµ
 struct symbol tval;
-//lastCharæ˜¯ä¸Šä¸€æ¬¡è°ƒç”¨getChar()çš„ç»“æœ,nowCharæ˜¯è¿™ä¸€æ¬¡çš„
+//lastCharÊÇÉÏÒ»´Îµ÷ÓÃgetChar()µÄ½á¹û,nowCharÊÇÕâÒ»´ÎµÄ
 char lastChar,nowChar=' ';
-//tsymä¸ºæŸäº›å•è¯å­˜æ”¾Symbol
+//tsymÎªÄ³Ğ©µ¥´Ê´æ·ÅSymbol
 struct symbol* tsym;
-//srcè¡¨ç¤ºå½“å‰å•è¯åœ¨æºç¨‹åºä¸­çš„åæ ‡
+//src±íÊ¾µ±Ç°µ¥´ÊÔÚÔ´³ÌĞòÖĞµÄ×ø±ê
 Coordinate src;
-//æ©ç map[c]å¯ä»¥å°†å­—ç¬¦cå½’ä¸ºä¸Šé¢7ç§é›†åˆ
+//ÑÚÂëmap[c]¿ÉÒÔ½«×Ö·ûc¹éÎªÉÏÃæ7ÖÖ¼¯ºÏ
 char map[256];
-//é€šå¸¸ä½¿ç”¨å…¨å±€å˜é‡tä¿å­˜å½“å‰å•è¯
+//Í¨³£Ê¹ÓÃÈ«¾Ö±äÁ¿t±£´æµ±Ç°µ¥´Ê
 int t;
 //<functions>
 void mapInit(){
@@ -34,7 +34,7 @@ void mapInit(){
 		if(i==' ')map[i]|=BLANK|ANSIC;
 		if(i=='\n')map[i]|=NEWLINE|ANSIC;
 		map['_']|=IDPART;
-		for(const char*p="~!%^&*()_+-=[]{}\\|;':\",.<>/?";*p;p++)
+		for(const char*p="~!%^&*()_+-=[]{}\\|;':\",.<>/?";*p;p++)//????
 			map[*p]|=ANSIC;
 	}
 }
@@ -56,17 +56,17 @@ int getToken(){
 	//	putchar(lastChar),putchar('\n');
 	//else printf("%s\n",token.c_str());
 	while(1){
-		//å¤„ç†æ–‡ä»¶ç»“æŸç¬¦
+		//´¦ÀíÎÄ¼ş½áÊø·û
 		if(nowChar==-1)
 			return EOF;
-		//å¤„ç†éANSI Cçš„å­—ç¬¦
+		//´¦Àí·ÇANSI CµÄ×Ö·û
 		if(nowChar<0||(!(map[nowChar]&ANSIC))){
 			error("%c isn't ANSI C character",nowChar);
 		}
-		//æ’é™¤ç©ºç™½å­—ç¬¦
+		//ÅÅ³ı¿Õ°××Ö·û
 		while(map[nowChar]&(BLANK|NEWLINE))
 			getChar();
-		//æ¸…ç©ºåŸæ–‡å­—ç¬¦ä¸²
+		//Çå¿ÕÔ­ÎÄ×Ö·û´®
 		token="";
 		src.x=line;
 		src.y=cols;
@@ -83,37 +83,59 @@ int getToken(){
 					return i+AUTO;
 			}return ID;
 		}
-		//æ ¹æ®é¦–å­—ç¬¦æ¥è¯†åˆ«ä¸åŒtoken
+		//¸ù¾İÊ××Ö·ûÀ´Ê¶±ğ²»Í¬token
 		switch(nowChar){
-		//æ³¨é‡Šæˆ–è€…æ˜¯é™¤å·
+		//×¢ÊÍ»òÕßÊÇ³ıºÅ
 		case '/':
 			token+=nowChar;getChar();
 			if(nowChar=='/'){
-				//å¤„ç†è¡Œæ³¨é‡Š
+				//´¦ÀíĞĞ×¢ÊÍ
 				while(getChar()!='\n');
-				//ä½†æ˜¯ç”±äºä¸èƒ½å†æ’é™¤ç©ºç™½å­—ç¬¦
-				//æ‰€ä»¥é€’å½’è°ƒç”¨
+				//µ«ÊÇÓÉÓÚ²»ÄÜÔÙÅÅ³ı¿Õ°××Ö·û
+				//ËùÒÔµİ¹éµ÷ÓÃ
 				return getToken();
 			}else if(nowChar=='*'){
-				//å¤„ç†å—æ³¨é‡Š
+				//´¦Àí¿é×¢ÊÍ
 				do
 					getChar();
 				while(lastChar!='*'||nowChar!='/');
 				getChar();
-				//ä½†æ˜¯ç”±äºä¸èƒ½å†æ’é™¤ç©ºç™½å­—ç¬¦
-				//æ‰€ä»¥é€’å½’è°ƒç”¨
+				//µ«ÊÇÓÉÓÚ²»ÄÜÔÙÅÅ³ı¿Õ°××Ö·û
+				//ËùÒÔµİ¹éµ÷ÓÃ
 				return getToken();
+			}else if(nowChar=='='){
+				getChar();
+                return DIV_ASSIGN;///=
 			}else{
 				return '/';
 			}
-		case '~':case '%':case '^':case '*':case '(':
+		case '~':case '(':
 		case ')':case '[':case ']':case '{':case '}':
 		case ';':case ':':case ',':case '?':case '\\':
 			getChar();
 			return lastChar;
+        case '*':getChar();
+            if(nowChar=='='){
+                getChar();
+                return MUL_ASSIGN;//*=
+            }return lastChar;//*
+        case '%':getChar();
+            if(nowChar=='='){
+                getChar();
+                return MOD_ASSIGN;//%=
+            }return lastChar;//%
+        case '^':getChar();
+            if(nowChar=='='){
+                getChar();
+                return XOR_ASSIGN;//^=
+            }return lastChar;//^
 		case '>':getChar();
 			if(nowChar==lastChar){
 				getChar();
+				if(nowChar=='='){
+                    getChar();
+                    return SHR_ASSIGN;//>>=
+                }
 				return SHR;//>>
 			}else if(nowChar=='='){
 				getChar();
@@ -122,6 +144,10 @@ int getToken(){
 		case '<':getChar();
 			if(nowChar==lastChar){
 				getChar();
+				if(nowChar=='='){
+                    getChar();
+                    return SHL_ASSIGN;//<<=
+                }
 				return SHL;//<<
 			}else if(nowChar=='='){
 				getChar();
@@ -141,17 +167,26 @@ int getToken(){
 			if(nowChar==lastChar){
 				getChar();
 				return AND;//&&
+			}else if(nowChar=='='){
+				getChar();
+				return AND_ASSIGN;//&=
 			}return lastChar;//&
 		case '|':getChar();
 			if(nowChar==lastChar){
 				getChar();
 				return OR;//||
+			}else if(nowChar=='='){
+				getChar();
+				return OR_ASSIGN;//|=
 			}return lastChar;//|
 		case '+':
 			getChar();
 			if(nowChar==lastChar){
 				getChar();
 				return INC;//++
+			}else if(nowChar=='='){
+			    getChar();
+			    return ADD_ASSIGN;//+=
 			}return lastChar;//+
 		case '-':
 			getChar();
@@ -161,27 +196,30 @@ int getToken(){
 			}else if(nowChar=='>'){
 				getChar();
 				return ZZ;//->
-			}return lastChar;//-
+			}else if(nowChar=='='){
+                getChar();
+                return SUB_ASSIGN;//-=
+            }return lastChar;//-
 		case '0':case '1':case '2':case '3':case '4':
 		case '5':case '6':case '7':case '8':case '9':
 			token+=nowChar;getChar();
 			if(lastChar=='0'){
-				//0å¼€å¤´ä¸€å®šä¸æ˜¯åè¿›åˆ¶æ•°
+				//0¿ªÍ·Ò»¶¨²»ÊÇÊ®½øÖÆÊı
 				if(nowChar=='x'||nowChar=='X'){
-					//è¯†åˆ«åå…­è¿›åˆ¶æ•°
+					//Ê¶±ğÊ®Áù½øÖÆÊı
 					token+=nowChar;getChar();
 					if(!(map[nowChar]&HEX)){
-						//å¿…é¡»è¦æœ‰ä¸€ä¸ªåå…­è¿›åˆ¶æ•°,å¦åˆ™è®¤ä¸ºæ˜¯æ— æ•ˆåå…­è¿›åˆ¶æ•°
+						//±ØĞëÒªÓĞÒ»¸öÊ®Áù½øÖÆÊı,·ñÔòÈÏÎªÊÇÎŞĞ§Ê®Áù½øÖÆÊı
 						error("Invalid Hexadecimal Number");
 					}
 					while(map[nowChar]&HEX){
 						token+=nowChar;getChar();
 					}
-					//è·å¾—åå…­è¿›åˆ¶å€¼
+					//»ñµÃÊ®Áù½øÖÆÖµ
 					int v=0;
 					sscanf(token.c_str(),"%x",&v);
 					tval.addressed=0;
-					//è¯†åˆ«uåç¼€
+					//Ê¶±ğuºó×º
 					if(nowChar=='u'||nowChar=='U'){
 						tval.type=btot(TYPE_UINT);
 						token+=nowChar;getChar();
@@ -192,22 +230,22 @@ int getToken(){
 					}
 					return ICON;
 				}else{
-					//è¯†åˆ«å…«è¿›åˆ¶æ•°
+					//Ê¶±ğ°Ë½øÖÆÊı
 					if(!('0'<=nowChar&&nowChar<='7')){
-						//å¿…é¡»è¦æœ‰ä¸€ä¸ªå…«è¿›åˆ¶æ•°,å¦åˆ™è®¤ä¸ºæ˜¯æ— æ•ˆå…«è¿›åˆ¶æ•°
+						//±ØĞëÒªÓĞÒ»¸ö°Ë½øÖÆÊı,·ñÔòÈÏÎªÊÇÎŞĞ§°Ë½øÖÆÊı
 						error("Invalid Octal Number");
 					}
 					while('0'<=nowChar&&nowChar<='7'){
 						token+=nowChar;getChar();
 					}
-					//å¦‚æœ010.1,010e3åº”è¯¥ä¸ºæµ®ç‚¹æ•°
+					//Èç¹û010.1,010e3Ó¦¸ÃÎª¸¡µãÊı
 					if(nowChar=='.'||nowChar=='e'||nowChar=='E')
 						goto fcon;
-					//è·å¾—å…«è¿›åˆ¶å€¼
+					//»ñµÃ°Ë½øÖÆÖµ
 					int v=0;
 					sscanf(token.c_str(),"%o",&v);
 					tval.addressed=0;
-					//è¯†åˆ«uåç¼€
+					//Ê¶±ğuºó×º
 					if(nowChar=='u'||nowChar=='U'){
 						tval.type=btot(TYPE_UINT);
 						token+=nowChar;getChar();
@@ -219,18 +257,18 @@ int getToken(){
 					return ICON;
 				}
 			}else{
-				//è¯†åˆ«åè¿›åˆ¶æ•°æ•´æ•°
+				//Ê¶±ğÊ®½øÖÆÊıÕûÊı
 				while(map[nowChar]&DIGIT){
 					token+=nowChar;getChar();
 				}
-				//å¦‚æœ10.1,10e3åº”è¯¥ä¸ºæµ®ç‚¹æ•°
+				//Èç¹û10.1,10e3Ó¦¸ÃÎª¸¡µãÊı
 				if(nowChar=='.'||nowChar=='e'||nowChar=='E')
 					goto fcon;
-				//è·å¾—åè¿›åˆ¶å€¼
+				//»ñµÃÊ®½øÖÆÖµ
 				int v=0;
 				sscanf(token.c_str(),"%d",&v);
 				tval.addressed=0;
-				//è¯†åˆ«uåç¼€
+				//Ê¶±ğuºó×º
 				if(nowChar=='u'||nowChar=='U'){
 					tval.type=btot(TYPE_UINT);
 					token+=nowChar;getChar();
@@ -241,39 +279,39 @@ int getToken(){
 				}
 				return ICON;
 			}
-		//è¯†åˆ«æµ®ç‚¹æ•°
+		//Ê¶±ğ¸¡µãÊı
 		case '.':fcon:
-			//èƒ½åˆ°è¿™é‡Œçš„åªæœ‰nowCharä¸º.,e,E
+			//ÄÜµ½ÕâÀïµÄÖ»ÓĞnowCharÎª.,e,E
 			if(nowChar=='.'){
 				token+=nowChar;getChar();
-				//å¤„ç†"3.e","a.b"è¿™æ ·.åé¢æ²¡æ•°å­—çš„æƒ…å†µ
+				//´¦Àí"3.e","a.b"ÕâÑù.ºóÃæÃ»Êı×ÖµÄÇé¿ö
 				if(!(map[nowChar]&DIGIT)){
-					//è¿™ç§æƒ…å†µæ˜¯ç•Œç¬¦
+					//ÕâÖÖÇé¿öÊÇ½ç·û
 					if(token==".")
 						return '.';
 					error("Invalid Floating Constant");
 				}
-				//è¯»å–å°æ•°éƒ¨åˆ†
+				//¶ÁÈ¡Ğ¡Êı²¿·Ö
 				while(map[nowChar]&DIGIT){
 					token+=nowChar;getChar();
 				}
 			}
 			if(nowChar=='e'||nowChar=='E'){
 				token+=nowChar;getChar();
-				//è¯†åˆ«æŒ‡æ•°å‰çš„ç¬¦å·
+				//Ê¶±ğÖ¸ÊıÇ°µÄ·ûºÅ
 				if(nowChar=='+'||nowChar=='-'){
 					token+=nowChar;getChar();
 				}
-				//å¤„ç†"3.5e"è¿™æ ·eåé¢æ²¡æ•°å­—çš„æƒ…å†µ
+				//´¦Àí"3.5e"ÕâÑùeºóÃæÃ»Êı×ÖµÄÇé¿ö
 				if(!(map[nowChar]&DIGIT)){
 					error("Invalid Floating Constant");
 				}
-				//è¯»å–æŒ‡æ•°
+				//¶ÁÈ¡Ö¸Êı
 				while(map[nowChar]&DIGIT){
 					token+=nowChar;getChar();
 				}
 			}
-			{//<å¤„ç†æµ®ç‚¹å¸¸é‡,å­—ç¬¦ä¸²å¸¸é‡,å’Œæµ®ç‚¹æ“ä½œ>
+			{//<´¦Àí¸¡µã³£Á¿,×Ö·û´®³£Á¿,ºÍ¸¡µã²Ù×÷>
 				tval.addressed=1;
 				if(nowChar=='f'||nowChar=='F'){
 					token+=nowChar;getChar();
@@ -289,10 +327,10 @@ int getToken(){
 				}
 				return FCON;
 			}
-		//è¯†åˆ«å­—ç¬¦ä¸²å¸¸é‡
+		//Ê¶±ğ×Ö·û´®³£Á¿
 		case '"':{
 				token+=nowChar;getChar();
-				//escapeä»£è¡¨æ˜¯å¦é‡åˆ°äº†è½¬ä¹‰å­—ç¬¦
+				//escape´ú±íÊÇ·ñÓöµ½ÁË×ªÒå×Ö·û
 				bool escape=false;
 				while(escape||nowChar!='\"'){
 					if(escape&&nowChar=='\n'){
@@ -319,11 +357,11 @@ int getToken(){
 				//tval.type=ptr(chartype);
 				return SCON;
 			}
-		//è¯†åˆ«å­—ç¬¦å¸¸é‡
+		//Ê¶±ğ×Ö·û³£Á¿
 		case '\'':
 			{
 				token+=nowChar;getChar();
-				//escapeä»£è¡¨æ˜¯å¦é‡åˆ°äº†è½¬ä¹‰å­—ç¬¦
+				//escape´ú±íÊÇ·ñÓöµ½ÁË×ªÒå×Ö·û
 				bool escape=false;
 				while(escape||nowChar!='\''){
 					if(escape)
@@ -340,7 +378,7 @@ int getToken(){
 				tval.addressed=0;
 				tval.type=btot(TYPE_INT);
 				if(token[1]=='\\'){
-					//å¯¹äºè½¬ä¹‰å­—ç¬¦çš„è¯†åˆ«
+					//¶ÔÓÚ×ªÒå×Ö·ûµÄÊ¶±ğ
 					switch(token[2]){
 					case 'a':v='\a';break;
 					case 'b':v='\b';break;
@@ -349,7 +387,7 @@ int getToken(){
 					case 'r':v='\r';break;
 					case 't':v='\t';break;
 					case 'v':v='\v';break;
-					//\xhhåå…­è¿›åˆ¶è½¬ä¹‰å­—ç¬¦
+					//\xhhÊ®Áù½øÖÆ×ªÒå×Ö·û
 					case 'x':
 						if(map[token[3]]&HEX)
 							if(map[token[4]]&HEX){
@@ -362,7 +400,7 @@ int getToken(){
 						else
 							v='x';
 						break;
-					//\dddå…«è¿›åˆ¶è½¬ä¹‰å­—ç¬¦
+					//\ddd°Ë½øÖÆ×ªÒå×Ö·û
 					case '0':case '1':case '2':case '3':
 					case '4':case '5':case '6':case '7':
 						if('0'<=token[3]&&token[3]<='7')

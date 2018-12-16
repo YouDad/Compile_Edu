@@ -3,13 +3,13 @@
 //<exported macros>
 //<exported types>
 	enum{
-		BLANK=01,//å¦‚æžœcæ˜¯ä¸€ä¸ªéžæ¢è¡Œç¬¦çš„ç©ºç™½å­—ç¬¦,åˆ™map[c]&BLANKéžé›¶
-		NEWLINE=02,//åŒ…å«'\n'
-		LETTER=04,//åŒ…å«a~z,A~Z
-		DIGIT=010,//åŒ…å«0~9
-		HEX=020,//åŒ…å«0~9,a~f,A~F
-		ANSIC=040,//åŒ…å«æ ‡å‡†å…è®¸å‡ºçŽ°åœ¨æºç¨‹åºçš„ASCIIå­—ç¬¦,'@'å°±ä¸æ˜¯
-		IDPART=0100//å…è®¸ä¸ºæ ‡è¯†ç¬¦çš„ä¸€éƒ¨åˆ†(éžé¦–å­—ç¬¦)
+		BLANK=01,//Èç¹ûcÊÇÒ»¸ö·Ç»»ÐÐ·ûµÄ¿Õ°××Ö·û,Ôòmap[c]&BLANK·ÇÁã
+		NEWLINE=02,//°üº¬'\n'
+		LETTER=04,//°üº¬a~z,A~Z
+		DIGIT=010,//°üº¬0~9
+		HEX=020,//°üº¬0~9,a~f,A~F
+		ANSIC=040,//°üº¬±ê×¼ÔÊÐí³öÏÖÔÚÔ´³ÌÐòµÄASCII×Ö·û,'@'¾Í²»ÊÇ
+		IDPART=0100//ÔÊÐíÎª±êÊ¶·ûµÄÒ»²¿·Ö(·ÇÊ××Ö·û)
 	};
 
 	enum{
@@ -20,23 +20,25 @@
 		UNSIGNED,VOID,WHILE,REGISTER,UNION,VOLATILE,
 		ID,ICON,FCON,SCON,
 		INC,DEC,ZZ,GEQ,LEQ,EQ,NEQ,//++,--,->,>=,<=,==,!=
-		OR,AND,SHL,SHR//&&,||,<<,>>
-	};//VOLATILE,REGISTER,UNION
+		OR,AND,SHL,SHR,//&&,||,<<,>>
+		MUL_ASSIGN,DIV_ASSIGN,MOD_ASSIGN,ADD_ASSIGN,SUB_ASSIGN,//*=,/=,%=,+=,-=
+		SHL_ASSIGN,SHR_ASSIGN,AND_ASSIGN,XOR_ASSIGN,OR_ASSIGN//<<=,>>=,&=,^=,|=
+	};
 //<exported typedefs>
 //<exported functions>
-	//åˆå§‹åŒ–è¯æ³•åˆ†æžå™¨
+	//³õÊ¼»¯´Ê·¨·ÖÎöÆ÷
 	extern void lexAnalyzerInit();
-	//è¿”å›žä¸‹ä¸€ä¸ªå¾…å¤„ç†çš„éžç©ºç™½å­—ç¬¦
+	//·µ»ØÏÂÒ»¸ö´ý´¦ÀíµÄ·Ç¿Õ°××Ö·û
 	extern int getChar();
-	//è¿”å›žä¸‹ä¸€ä¸ªå•è¯,å¯ä»¥æ˜¯å­—ç¬¦æˆ–æžšä¸¾å¸¸é‡,å…³é”®å­—,é¢„å®šä¹‰å¸¸é‡
+	//·µ»ØÏÂÒ»¸öµ¥´Ê,¿ÉÒÔÊÇ×Ö·û»òÃ¶¾Ù³£Á¿,¹Ø¼ü×Ö,Ô¤¶¨Òå³£Á¿
 	extern int getToken();
 //<exported data>
-	//é€šå¸¸ä½¿ç”¨å…¨å±€å˜é‡tä¿å­˜å½“å‰å•è¯
+	//Í¨³£Ê¹ÓÃÈ«¾Ö±äÁ¿t±£´æµ±Ç°µ¥´Ê
 	extern int t;
-	//tokenå½“å‰å•è¯çš„åŽŸæ–‡æœ¬
+	//tokenµ±Ç°µ¥´ÊµÄÔ­ÎÄ±¾
 	extern std::string token;
-	//tsymä¸ºæŸäº›å•è¯å­˜æ”¾Symbol
+	//tsymÎªÄ³Ð©µ¥´Ê´æ·ÅSymbol
 	extern struct symbol* tsym;
-	//srcè¡¨ç¤ºå½“å‰å•è¯åœ¨æºç¨‹åºä¸­çš„åæ ‡
+	//src±íÊ¾µ±Ç°µ¥´ÊÔÚÔ´³ÌÐòÖÐµÄ×ø±ê
 	extern struct coord src;
 	extern char map[256];
