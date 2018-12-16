@@ -5,7 +5,7 @@
 //<exported typedefs>
 //<exported functions>
 void translatorInit();
-void Start();
+void translation_unit();
 //<exported data>
 //语义栈
 extern std::stack<struct symbol*> sem;
