@@ -5,3 +5,4 @@ Debug/*
 CompilerSrc.*
 x64/*
 .vs/*
+CompilerSrc/x64/*
