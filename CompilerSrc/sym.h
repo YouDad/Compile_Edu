@@ -41,14 +41,7 @@
 			//enum constants value
 			int ev;
 			//constants
-			struct{
-				//常量的值存放在v中
-				Value v;
-				//有些(浮点)常量不能存储在指令中,所以编译器
-				//生成一个静态变量并将其初始化成该浮点常量的值
-				//对于这些常量,loc指向了产生的变量所对应的符号
-				struct symbol* loc;
-			}c;
+			Value c;
 		}u;
 		//<symbol flags>
 		//如果该符号是临时变量,则temporary为1
@@ -75,27 +68,19 @@
 		int size;
 	}* SymbolTable;
 
-	//标签类型
-	struct label{
-		//标签名
-		String name;
-		//是否被定义
-		bool defined;
-		//在文中出现的位置
-		Coordinate src;
-		//标签id
-		int id;
-	};
-
 //<exported typedefs>
 //<exported functions>
 
 	//符号表初始化函数
 	void symInit();
+	
+	//只是用于存储v的int常数,不在表中
+	Symbol newIntConst(int v);
 
 	//新定义一个浮点常量的符号
 	//会把这个符号加到常量表中
-	Symbol newFloatConst(Symbol s);
+	//如果已经存在就直接返回表中符号
+	Symbol newFloatConst(Symbol s,Coordinate c);
 
 	//新定义一个枚举常量的标识符
 	//name是这个枚举常量的名字
@@ -128,17 +113,6 @@
 
 	//向符号表申请一个临时变量
 	Symbol newTemp();
-
-	//查询标签表是否有名叫name的标签
-	//如果有,返回id>0,如果没有返回0
-	int findLabel(String&name);
-
-	//添加一个标签,并返回一个id
-	//默认是定义的标签,define代表这次声明是否是定义
-	int newLabel(String&name,int defined);
-
-	//给后端使用,给一个id,返回一个标签结构
-	struct label getLabel(int id);
 
 //<exported data>
 

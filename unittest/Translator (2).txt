@@ -1,36 +1,6 @@
-//测试定义语句
-//这个文件发现文法的两处错误:
-//ID :  指的是标号定义
-//ID ω  指的是表达式
-//ID ID 指的是被typedef重定义的类型
-//所以暂时不定义标号和使用被typedef重定义的类型
-//还有IDecList没完成
-static int a;
-const int aa;
-auto int aaa;
-extern int aaaa;
-int aaaaa;
-double b;
-float bb;
-signed int c;
-unsigned int cc;
-long d;
-long int dd;
-short ddd;
-short int dddd;
-char ddddd;
-typedef struct{
-  int a;
-  struct{
-    union u{
-      unsigned char c;
-      signed long d;
-    }v;
-    static short int asd;
-  }x;
-}XX;
-enum{z,x,y};
-enum asdjio{qwioe};
-volatile{
-
-}
+int d[10];
+struct e{
+	float f;
+	char g;
+	int h;
+}i;

@@ -1,0 +1,252 @@
+
+assignment_operator
+`=
+`+=
+`-=
+`*=
+`/=
+`%=
+`>>=
+`<<=
+`^=
+`|=
+`&=
+`
+unary_operator
+`&
+`*
+`+
+`-
+`~
+`!
+`
+primary_expression
+`_I_ _ApushOperand
+`_C_ _ApushOperand
+`_N_ _ApushOperand
+`_S_ _ApushOperand
+`( expression )
+`
+postfix_expression
+`primary_expression
+`postfix_expression [ expression ] _Afind
+`postfix_expression ( ) _Acall
+`postfix_expression ( argument_expression_list ) _Acall
+`postfix_expression . _I_ _A.member
+`postfix_expression -> _I_ _A->member
+`postfix_expression ++ _Apushinc
+`postfix_expression -- _Apushdec
+`
+unary_expression
+`postfix_expression
+`++ unary_expression _Ainc
+`-- unary_expression _Adec
+`sizeof unary_expression _Asizeof
+`unary_operator _Apushop unary_expression _Asendop
+`
+cast_expression
+`unary_expression
+`:: type_specifier _ApushCastType : cast_expression _ApopCastType
+`
+multiplicative_expression
+`multiplicative_expression * cast_expression _Asend*
+`multiplicative_expression / cast_expression _Asend/
+`multiplicative_expression % cast_expression _Asend%
+`cast_expression
+`
+additive_expression
+`additive_expression + multiplicative_expression _Asend+
+`additive_expression - multiplicative_expression _Asend-
+`multiplicative_expression
+`
+shift_expression
+`shift_expression >> additive_expression _Asend>>
+`shift_expression << additive_expression _Asend<<
+`additive_expression
+`
+relational_expression
+`relational_expression > shift_expression _Asend>
+`relational_expression < shift_expression _Asend<
+`relational_expression >= shift_expression _Asend>=
+`relational_expression <= shift_expression _Asend<=
+`shift_expression
+`
+equality_expression
+`equality_expression == relational_expression _Asend==
+`equality_expression != relational_expression _Asend!=
+`relational_expression
+`
+and_expression
+`and_expression & equality_expression _Asend&
+`equality_expression
+`
+exclusive_or_expression
+`exclusive_or_expression ^ and_expression _Asend^
+`and_expression
+`
+inclusive_or_expression
+`inclusive_or_expression | exclusive_or_expression _Asend|
+`exclusive_or_expression
+`
+logical_and_expression
+`logical_and_expression && inclusive_or_expression _Asend&&
+`inclusive_or_expression
+`
+logical_or_expression
+`logical_or_expression || logical_and_expression _Asend||
+`logical_and_expression
+`
+conditional_expression
+`logical_or_expression ? _Aif1 expression : _Aif2 conditional_expression _Aif3
+`logical_or_expression
+`
+argument_expression_list
+`argument_expression_list , assignment_expression _Aarg
+`assignment_expression _Aarg
+`
+assignment_expression
+`unary_expression assignment_operator _Apushop assignment_expression _Asendop
+`conditional_expression
+`
+expression
+`expression , _ApopOperand assignment_expression
+`assignment_expression
+`
+constant_expression
+`conditional_expression
+`
+storage_class_specifier
+`static _AsaveSclass
+`auto _AsaveSclass
+`const _AsaveSclass
+`
+struct_or_union
+`struct _ApushStruct
+`union _ApushUnion
+`
+specifier_qualifier_list
+`type_specifier specifier_qualifier_list
+`type_specifier
+`
+struct_declarator_list
+`declarator _AaddField
+`struct_declarator_list , declarator _AaddField
+`
+struct_declaration
+`specifier_qualifier_list struct_declarator_list ; _ApopType
+`
+struct_declaration_list
+`struct_declaration
+`struct_declaration_list struct_declaration
+`
+struct_or_union_specifier
+`struct_or_union : _I_ _ApushType { _Aenterscope struct_declaration_list } _Aexitscope
+`struct_or_union : _I_ _ApushType { _Aenterscope } _Aexitscope
+`struct_or_union :: _ApushType { _Aenterscope struct_declaration_list } _Aexitscope
+`struct_or_union :: _ApushType { _Aenterscope } _Aexitscope
+`struct_or_union _I_ _ApushType
+`
+enumerator
+`_I_ _AaddEnum
+`_I_ _AaddEnum = constant_expression _AcheckConst _Aaddval
+`
+enumerator_list
+`enumerator
+`enumerator_list , enumerator
+`
+enum_specifier
+`enum : _I_ _ApushType { _AnewEnumenterscope enumerator_list } _Aexitscope
+`enum :: _ApushType { _AnewEnumenterscope enumerator_list } _Aexitscope
+`enum _I_ _AenumpushType
+`
+type_specifier
+`void _ApushType
+`int _ApushType
+`char _ApushType
+`short _ApushType
+`long _ApushType
+`float _ApushType
+`double _ApushType
+`signed _ApushType
+`unsigned _ApushType
+`struct_or_union_specifier
+`enum_specifier
+`
+declaration_specifiers
+`storage_class_specifier declaration_specifiers
+`storage_class_specifier
+`type_specifier declaration_specifiers
+`type_specifier
+`
+pointer
+`* _Aptr
+`* _Aptr pointer
+`
+declarator
+`pointer direct_declarator
+`direct_declarator
+`
+parameter_list
+`declaration_specifiers declarator _AfuncAddKidWithName
+`parameter_list , _ApopType declaration_specifiers declarator _AfuncAddKidWithName
+`
+direct_declarator
+`_I_
+`direct_declarator [ constant_expression _AcheckConst ] _AnewArray
+`direct_declarator [ ] _AnewArray
+`
+init_declarator
+`declarator _AtellVar
+`declarator _AtellVar = assignment_expression _Asend=
+`
+init_declarator_list
+`init_declarator
+`init_declarator_list , init_declarator
+`
+declaration
+`declaration_specifiers ; _ApopType
+`declaration_specifiers init_declarator_list ; _ApopType
+`
+expression_statement
+`;
+`expression ; _ApopOperand
+`
+statement
+`expression_statement
+`compound_statement
+`if ( expression ) _Aif1 statement _Aif2 else statement _Aif3
+`while _Afor1 ( expression ) _Afor2for3 statement _Afor4
+`for ( expression_statement _Afor1 expression_statement _Afor2 ) _Afor3 statement _Afor4
+`for ( expression_statement _Afor1 expression_statement _Afor2 expression ) _Afor3 statement _Afor4
+`continue _Afor6 ;
+`break _Afor5 ;
+`return ; _Aret
+`return expression ; _Arete
+`
+statement_list
+`statement
+`statement_list statement
+`
+declaration_list
+`declaration
+`declaration_list declaration
+`
+compound_statement
+`{ _Aenterscope } _Aexitscope
+`{ _Aenterscope declaration_list } _Aexitscope
+`{ _Aenterscope statement_list } _Aexitscope
+`{ _Aenterscope declaration_list statement_list } _Aexitscope
+`
+external_declaration
+`: type_specifier _I_ ( _Anewfunc parameter_list ) _Aaddfunc compound_statement
+`: type_specifier _I_ ( _Anewfunc ) _Aaddfunc compound_statement
+`declaration
+`
+translation_unit
+`external_declaration
+`translation_unit external_declaration
+`
+start
+`translation_unit _Aend
+`
+main:start

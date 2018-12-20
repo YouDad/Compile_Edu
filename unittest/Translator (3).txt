@@ -1,7 +1,8 @@
-//²âÊÔ±í´ïÊ½
-volatile{
-  int a=a+1;
-  a=a*(1+a)&&a;
-  a=++a++;
-  a=a>>1<<1;
+:void func(int a,float b,const char* c){
+	if(j)
+		for(k=-1;k;k++)
+			continue;
+	else;
+	return;
+	return 0;
 }

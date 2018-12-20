@@ -15,6 +15,9 @@ const char* op_str[]={
 Symbol eax,ecx;
 //保存常数声明的顺序
 Vector<Symbol> constVector;
+//临时标号id
+int tmpid;
+
 //<functions>
 
 //两个重命名函数,明确语义,自动换行,就像puts
@@ -41,26 +44,28 @@ void backEndInit(){
 	asmSay(".model flat,stdcall");
 	asmSay("ExitProcess proto,dwExitCode:dword");
 	asmSay(".code");
-	asmSay("main proc");
-	asmSay("\tmov ebp,offset auto");
 }
 
 //告诉后端,编译完成,发送结束四元式
 void sendEnd(){
-	objSay("(ed,_,_,_)");
+	objSay("(ed,,,)");
+	asmSay("@main:");
+	asmSay("\tmov ebp,offset auto");
+	asmSay("\tcall main");
 	asmSay("\tpush 0h");
 	asmSay("\tcall ExitProcess");
-	asmSay("main endp");
+
 	asmSay(".data");
-	asmSay("\tfcmp dw 0");
+	asmSay("\tfret dq 0");
+	asmSay("\tfcmp dd 0");
 	asmSay("\tconst db 0 dup(0)");
 	for(int i=0;i<constVector.size();i++){
 		Symbol&now=constVector[i];
 		int op=now->type->op;
 		if(op==TYPE_FLOAT){
-			asmSay("\t\tdd %u",now->u.c.v.u);
+			asmSay("\t\tdd %u",now->u.c.u);
 		}else if(op==TYPE_DOUBLE){
-			asmSay("\t\tdq %ull",now->u.c.v.uu);
+			asmSay("\t\tdq %ull",now->u.c.uu);
 		}else{
 			asmSay("\t\tdb %s",
 				now->name.substr(1,now->name.size()-2));
@@ -68,27 +73,9 @@ void sendEnd(){
 	}
 	asmSay("\tstatic db %d dup(0)",staticTable->size);
 	asmSay("\tauto db 65536 dup(0)");
-	asmSay("end main");
+	asmSay("end @main");
 	fclose(fobj);
 	fclose(fasm);
-}
-
-//告诉后端,生成一个id为labelId的标签
-void sendLabel(int labelId){
-	struct label lb=getLabel(labelId);
-
-	//必须是已经出现定义的才能生成
-	assert(lb.defined==1);
-
-	objSay("(lb,%d,_,_)",labelId);
-	asmSay("$%s:",lb.name.c_str());
-}
-
-//告诉后端,跳转到id为labelId的标签
-void sendGt(int labelId){
-	struct label lb=getLabel(labelId);
-	objSay("gt,%d,_,_)",labelId);
-	asmSay("\tjmp $%s",lb.name.c_str());
 }
 
 //根据操作数大小,返回byte/word/dword/qword ptr
@@ -149,7 +136,7 @@ const char* address(Symbol&s){
 			}
 		}else{
 			//指令常量
-			sprintf(str,"%s",asmHex(s->u.c.v.u));
+			sprintf(str,"%s",asmHex(s->u.c.u));
 		}
 	}else{
 		//动态区变量
@@ -162,12 +149,8 @@ const char* address(Symbol&s){
 void sendFor(int forId,enum FOR_STATE state){
 	switch(state){
 	case FOR_CMP:
-		objSay("(lb,$for%dcmp,_,_)",forId);
+		objSay("(lb,$for%dcmp,,)",forId);
 		asmSay("$for%dcmp:",forId);
-		//语义栈必须有符号,是初始化表达式的值
-		assert(sem.size());
-		//不过这个值没有用
-		sem.pop();
 		break;
 	case FOR_INC:{
 			//语义栈必须有符号,是比较表达式的值
@@ -179,28 +162,29 @@ void sendFor(int forId,enum FOR_STATE state){
 			asmSay("\tcmp 0,%s",address(tmp));
 			asmSay("\tjz $for%dend",forId);
 			asmSay("\tjmp $for%dblk",forId);
-			objSay("(lb,$for%dinc,_,_)",forId);
+			objSay("(lb,$for%dinc,,)",forId);
 			asmSay("$for%dinc:",forId);
 			break;
 		}
 	case FOR_BLOCK:
-		objSay("(gt,$for%dcmp,_,_)",forId);
+		assert(sem.size());sem.pop();
+		objSay("(gt,$for%dcmp,,)",forId);
 		asmSay("\tjmp $for%dcmp",forId);
-		objSay("(lb,$for%dblk,_,_)",forId);
+		objSay("(lb,$for%dblk,,)",forId);
 		asmSay("$for%dblk:",forId);
 		break;
 	case FOR_END:
-		objSay("(gt,$for%dinc,_,_)",forId);
+		objSay("(gt,$for%dinc,,)",forId);
 		asmSay("\tjmp $for%dinc",forId);
-		objSay("(lb,$for%dend,_,_)",forId);
+		objSay("(lb,$for%dend,,)",forId);
 		asmSay("$for%dend:",forId);
 		break;
 	case FOR_BREAK:
-		objSay("(gt,$for%dend,_,_)",forId);
+		objSay("(gt,$for%dend,,)",forId);
 		asmSay("\tjmp $for%dend",forId);
 		break;
 	case FOR_CONTINUE:
-		objSay("(gt,$for%dinc,_,_)",forId);
+		objSay("(gt,$for%dinc,,)",forId);
 		asmSay("\tjmp $for%dinc",forId);
 		break;
 	}
@@ -214,22 +198,48 @@ void sendIf(int ifId,enum IF_STATE state){
 			assert(sem.size());
 			//取出表达式的值
 			Symbol tmp=sem.top();sem.pop();
-			objSay("(if,%s,_,$if%delse)",
+			objSay("(if,%s,,$if%delse)",
 				tmp->name.c_str(),ifId,ifId);
 			asmSay("\tcmp 0,%s",address(tmp));
 			asmSay("\tjz $if%delse",ifId);
 			break;
 		}
 	case IF_ELSE:
-		objSay("(gt,$if%dend,_,_)",ifId);
+		objSay("(gt,$if%dend,,)",ifId);
 		asmSay("\tjmp $if%dend",ifId);
-		objSay("(lb,$if%delse,_,_)",ifId);
+		objSay("(lb,$if%delse,,)",ifId);
 		asmSay("$if%delse:",ifId);
 		break;
 	case IF_END:
-		objSay("(lb,$if%dend,_,_)",ifId);
+		objSay("(lb,$if%dend,,)",ifId);
 		asmSay("$if%dend:",ifId);
 		break;
+	}
+}
+/*
+func proto stdcall\
+	:dword,\
+	:dword
+
+
+include data.inc
+.code
+
+func proc stdcall\
+	b:dword,\
+	d:dword
+	mov eax,b
+	add eax,d
+	ret 8
+func endp
+*/
+//生成函数各阶段代码
+void sendFunc(enum FUNC_STATE state,std::queue<Symbol>sq){
+	switch(state){
+	case FUNC_DEFINE:
+		asmSay("%s proc stdcall\\");
+		
+	case FUNC_CALL:;
 	}
 }
 
@@ -296,7 +306,7 @@ void sendOp(enum OP op,Symbol first,Symbol second,Symbol result){
 		//操作之后eax存到不是任何符号的内容了
 		eax=NULL;
 		asmSay("\t%s %s,cl",
-			op==SHL?"shl":"shr",
+			op==_SHL?"shl":"shr",
 			whatAReg(ssz)
 		);
 		//存了之后,eax和result的内容是一样的了
@@ -462,10 +472,11 @@ void sendOp(enum OP op,Symbol first,Symbol second,Symbol result){
 
 //处理浮点情况
 void sendFloatOp(enum OP op,Symbol first,Symbol second,Symbol result){
-	int fsz=first->type->size;
-	int ssz=second->type->size;
-	int rsz=result->type->size;
-	const char* str1,* str2,* str3;
+	//int fsz=first->type->size;
+	//int ssz=second->type->size;
+	//int rsz=result->type->size;
+	const char* str1,* str2;
+	int x;
 	switch(op){
 	case _ADD:str1="fadd";goto BinaryOperator;
 	case _SUB:str1="fsub";goto BinaryOperator;
@@ -473,36 +484,132 @@ void sendFloatOp(enum OP op,Symbol first,Symbol second,Symbol result){
 	case _DIV:str1="fdiv";goto BinaryOperator;
 BinaryOperator:
 		str2=isFloat(second->type->op)?"":"i";
-		asmSay("f%sld %s",str2,address(second));
+		asmSay("\tf%sld %s",str2,address(second));
 		str2=isFloat(first->type->op)?"":"i";
-		asmSay("f%sld %s",str2,address(first));
-		asmSay("%s",str1);
+		asmSay("\tf%sld %s",str2,address(first));
+		asmSay("\t%s",str1);
 		str2=isFloat(result->type->op)?"":"i";
-		asmSay("f%sstp %s",str2,address(result));
+		asmSay("\tf%sstp %s",str2,address(result));
 		break;
-	case _AND:
-	case _OR:;
+	case _AND:str1="jnp";x=1;goto _AND_OR_;
+	case _OR:str1="jp";x=0;goto _AND_OR_;
+_AND_OR_:
+		str2=isFloat(first->type->op)?"":"i";
+		asmSay("\tf%sld %s",str2,address(first));
+		asmSay("\tfldz");
+		asmSay("\tfucompp");
+		asmSay("\tfnstsw ax");
+		asmSay("\ttest ah,44h");
+		asmSay("\t%s $%d$",str1,tmpid);
 
-/*
-fld         qword ptr [x]
-fldz
-fucompp
-fnstsw      ax
-test        ah,44h
-jnp         main+87h (11513D7h)  ;jp          main+0C2h (1151412h)
-fld         qword ptr [y]
-fldz
-fucompp
-fnstsw      ax
-test        ah,44h
-jnp         main+87h (11513D7h)  ;jp          main+0C2h (1151412h)
-mov         dword ptr [ebp-124h],1  ;mov         dword ptr [ebp-124h],0
-jmp         main+91h (11513E1h)
-mov         dword ptr [fcmp],0  ;mov         dword ptr [ebp-124h],1
-fild        dword ptr [ebp-124h]
-fstp        qword ptr [z]
-*/
+		str2=isFloat(second->type->op)?"":"i";
+		asmSay("\tf%sld %s",str2,address(second));
+		asmSay("\tfldz");
+		asmSay("\tfucompp");
+		asmSay("\tfnstsw ax");
+		asmSay("\ttest ah,44h");
+		asmSay("\t%s $%d$",str1,tmpid);
+
+		asmSay("\tmov fcmp,%d",x);
+		asmSay("\tjmp $%d$N",tmpid);
+		asmSay("$%d$:",tmpid);
+		asmSay("\tmov fcmp,%d",1-x);
+
+		asmSay("$%d$N:",tmpid++);
+		if(isFloat(result->type->op)){
+			asmSay("\tfild fcmp");
+			asmSay("\tfstp %s",address(result));
+		}else{
+			asmSay("\tmov eax,fcmp");
+			asmSay("\tmov %s,%s",address(result),whatAReg(result->type->size));
+		}
+		break;
+	case _NOT:
+		str2=isFloat(first->type->op)?"":"i";
+		asmSay("\tf%sld %s",str2,address(first));
+		asmSay("\tfldz");
+		asmSay("\tfucompp");
+		asmSay("\tfnstsw ax");
+		asmSay("\ttest ah,44h");
+		asmSay("\tjp $%d$",tmpid);
+		asmSay("\tmov fcmp,1");
+		asmSay("\tjmp $%d$N",tmpid);
+		asmSay("$%d$:",tmpid);
+		asmSay("\tmov fcmp,0");
+
+		asmSay("$%d$N:",tmpid++);
+		if(isFloat(result->type->op)){
+			asmSay("\tfild fcmp");
+			asmSay("\tfstp %s",address(result));
+		}else{
+			asmSay("\tmov eax,fcmp");
+			asmSay("\tmov %s,%s",address(result),whatAReg(result->type->size));
+		}
+		break;
+	case _NEG:
+		str2=isFloat(first->type->op)?"":"i";
+		asmSay("\tf%sld %s",str2,address(first));
+		asmSay("\tfchs");
+		asmSay("\tfstp %s",address(result));
+		break;
+	case _INC:str1="fadd";goto _INC_DEC_;
+	case _DEC:str1="fsub";goto _INC_DEC_;
+_INC_DEC_:
+		asmSay("\tfld1");
+		str2=isFloat(first->type->op)?"":"i";
+		asmSay("\tf%sld %s",str2,address(first));
+		asmSay("\t%s",str1);
+		str2=isFloat(result->type->op)?"":"i";
+		asmSay("\tf%sstp %s",str2,address(result));
+		break;
+	case _EQU:x=44;str1="jp"; goto _GLE_;
+	case _NEQ:x=44;str1="jnp";goto _GLE_;
+	case _GTR:x=05;str1="jp"; goto _GLE_;
+	case _GEQ:x=41;str1="jp"; goto _GLE_;
+	case _LES:x=41;str1="jne";goto _GLE_;
+	case _LEQ:x=01;str1="jne";goto _GLE_;
+_GLE_:
+		str2=isFloat(first->type->op)?"":"i";
+		asmSay("\tf%sld %s",str2,address(first));
+		str2=isFloat(second->type->op)?"":"i";
+		asmSay("\tf%sld %s",str2,address(second));
+		asmSay("\tfucompp");
+		asmSay("\tfnstsw ax");
+		asmSay("\ttest ah,%02dh",x);
+		asmSay("\t%s $%d$",str1,tmpid);
+		asmSay("\tmov fcmp,1");
+		asmSay("\tjmp $%d$N",tmpid);
+		asmSay("$%d$:",tmpid);
+		asmSay("\tmov fcmp,0");
+		asmSay("$%d$N:",tmpid++);
+		if(isFloat(result->type->op)){
+			asmSay("\tfild fcmp");
+			asmSay("\tfstp %s",address(result));
+		}else{
+			asmSay("\tmov eax,fcmp");
+			asmSay("\tmov %s,%s",address(result),whatAReg(result->type->size));
+		}
+		break;
+	case _MOV:
+		str2=isFloat(first->type->op)?"":"i";
+		asmSay("\tf%sld %s",str2,address(first));
+		str2=isFloat(result->type->op)?"":"i";
+		asmSay("\tf%sstp %s",str2,address(result));
+		break;
+	default:
+		//应该不能进来
+		//不支持的操作
+		assert(0);
+		break;
 	}
+}
+
+//告诉后端,生成(ret,val,,fret)这样的四元式
+void sendRet(struct symbol*val){
+	int sz=val->type->size;
+	objSay("(ret,,,val)");
+	asmSay("\tmov %s,%s",whatAReg(sz),address(val));
+	asmSay("\tmov %s fret,%s",whatPtr(sz),whatAReg(sz));
 }
 
 //通知后端,声明了一个s符号
@@ -525,7 +632,8 @@ void tellVar(Symbol s){
 			s->offset=identifierTable->size;
 			identifierTable->size+=s->type->size;
 		}
-	}
+	}else
+		assert(0);
 }
 
 //通知后端,声明了一个t类型
@@ -537,10 +645,8 @@ void tellType(struct type* t){
 		if(isConst(t->op)){
 			t->offset=constTable->size;
 			constTable->size+=t->size;
-		}
-		if(isStatic(t->op)){
-			t->offset=staticTable->size;
-			staticTable->size+=t->size;
+			//放到常数声明表中
+			constVector.push_back(t->constFloat);
 		}
 	}
 }

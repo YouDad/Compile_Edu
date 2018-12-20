@@ -50,6 +50,7 @@ struct type* newType(int lev,String&name){
 	tmp.kid=NULL;
 	tmp.next=NULL;
 	tmp.name=name;
+	tmp.offset=0;
 	i->m[name]=tmp;
 	return &i->m[name];
 }
@@ -67,7 +68,7 @@ void checkLevel(int lev){
 }
 
 //返回一个作用域为lev的空的Struct的类型指针
-struct type* newStruct(int lev,String&name){
+struct type* newStruct(int lev,String name){
 	checkLevel(lev);
 	for(TypeTable*i=table;i;i=i->prev){
 		if(i->level==lev){
@@ -90,7 +91,7 @@ struct type* newStruct(int lev,String&name){
 };
 
 //返回一个作用域为lev的union类型指针
-struct type* newUnion(int lev,String&name){
+struct type* newUnion(int lev,String name){
 	checkLevel(lev);
 	for(TypeTable*i=table;i;i=i->prev){
 		if(i->level==lev){
@@ -113,7 +114,7 @@ struct type* newUnion(int lev,String&name){
 };
 
 //返回一个作用域为lev的enum类型指针
-struct type* newEnum(int lev,String&name){
+struct type* newEnum(int lev,String name){
 	checkLevel(lev);
 	for(TypeTable*i=table;i;i=i->prev){
 		if(i->level==lev){
@@ -133,10 +134,10 @@ struct type* newEnum(int lev,String&name){
 	}
 	assert(0);
 	return NULL;
-};
+}
 
 //dfs函数,完全复制类型,i=j
-void copyField(struct type* i,struct type* j){
+void copyField(struct type*&i,struct type*&j){
 	if(j){
 		i=new struct type();
 		i->name=j->name;
@@ -145,8 +146,54 @@ void copyField(struct type* i,struct type* j){
 	}else return;
 	if(j->kid)
 		copyField(i->kid,j->kid);
+	else i->kid=0;
 	if(j->next)
 		copyField(i->next,j->next);
+	else i->next=0;
+}
+
+//返回一个作用域为lev的函数类型指针,返回值类型为t
+struct type* newFunc(int lev,struct type*t){
+	checkLevel(lev);
+	for(TypeTable*i=table;i;i=i->prev){
+		if(i->level==lev){
+			static char str[20];
+			sprintf(str,"$%s(*Func)",t->name.c_str());
+			String name=str;
+			auto it=i->m.find(name);
+			if(it!=i->m.end())
+				error("Redefined");
+			struct type*tmp=newType(lev,name);
+			tmp->op=TYPE_FUNCTION;
+			tmp->size=0;
+			copyField(tmp->kid,t);
+			return tmp;
+		}
+	}
+	assert(0);
+	return NULL;
+}
+
+//把t这个函数定死在类型表里(原来是$int(*Func)后面没有参数)
+//现在加上参数列表
+struct type* saveFunc(struct type*t){
+	/*for(TypeTable*i=table;i;i=i->prev){
+		if(i->m.count(t->name)){
+			static char str[20];
+			sprintf(str,"$%s(*Func)",t->name.c_str());
+			String name=str;
+			auto it=i->m.find(name);
+			if(it!=i->m.end())
+				error("Redefined");
+			struct type*tmp=newType(lev,name);
+			tmp->op=TYPE_FUNCTION;
+			tmp->size=0;
+			copyField(tmp->kid,t);
+			return tmp;
+		}
+	}
+	assert(0);
+	return NULL;*/
 }
 
 //给结构体或联合增加域
@@ -193,6 +240,19 @@ struct type* ptr(struct type* t){
 	ret->size=4;
 	return ret;
 };
+
+//返回一个元素是t的数组类型
+struct type* newArray(struct type* t,int size){
+	static char str[100];
+	sprintf(str,"%s[%d]",t->name.c_str(),size);
+	String name=str;
+	struct type* ret=newType(SCOPE_GLOBAL,name);
+	copyField(ret->kid,t);
+	ret->next=0;
+	ret->op=TYPE_ARRAY|TYPE_CONST;
+	ret->size=t->size*size;
+	return ret;
+}
 
 //返回一个t所指向的类型,如果t是指针类型的话
 struct type* deref(struct type* t){

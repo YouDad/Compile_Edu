@@ -1,4 +1,24 @@
-//²âÊÔÄÜ·ñÔËĞĞ
-volatile{
-
+:int main(){
+	int m=5;
+	int m=n=5;
+	float char c;
+	int*m;
+	static long b;
+	auto int x;
+	volatile int*q;
+	enum r{s,t=-1}u=::int:v;
+	int*const*o;
+	int p[];
+	enum{w};
+	struct{};
+	union x{int y;double z;};
+	auto int A;
+	static long B;
+	F=func(C=5,D=7.0e-8,E="123");
+	_=1?1:1;
+	while(l++)
+		break;
+	_=G*H+I-J/K<<L>>M>=N==O<=P!=Q>R<S&T|U^V&&W?Y:Z;
+	_=G*H+I-J/K<<L>>M>=N==O<=P!=Q>R<S&T|U^V&&W||X;
+	return 0;
 }

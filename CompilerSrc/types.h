@@ -5,7 +5,6 @@
 #define isInteger(t) ((t&63)<=TYPE_INT)
 #define isFloat(t) (TYPE_FLOAT<=(t&63)&&(t&63)<=TYPE_DOUBLE)
 #define isArith(t) ((t&63)<=TYPE_DOUBLE)
-#define isStatic(t) (t&64)
 #define isConst(t)  (t&128)
 #define isArray(t) ((t&63)==TYPE_ARRAY)
 #define isPointer(t) ((t&63)==TYPE_POINTER)
@@ -23,6 +22,8 @@ struct type{
 	int op;
 	//域的偏移量
 	int offset;
+	//用于存放浮点常量的符号指针
+	struct symbol* constFloat;
 	//kid是数组,结构体的指向下一级类型的指针
 	//next是串联域的指针
 	struct type* kid,* next;
@@ -34,7 +35,6 @@ enum TYPE{
 	TYPE_FLOAT,TYPE_DOUBLE,//两个浮点类型,以上都是算术类型
 	TYPE_ARRAY,TYPE_STRUCT,TYPE_UNION,TYPE_POINTER,TYPE_FUNCTION,//有kid域的类型
 	TYPE_VOID,//空类型
-	TYPE_STATIC=64,//静态存储类型
 	TYPE_CONST=128//常量存储类型
 };
 struct TypeTable{
@@ -49,11 +49,16 @@ struct TypeTable{
 	//检查域的lev值
 	void checkLevel();
 	//返回一个作用域为lev的空的Struct的类型指针
-	struct type* newStruct(int lev,String&name);
+	struct type* newStruct(int lev,String name="");
 	//返回一个作用域为lev的union类型指针
-	struct type* newUnion(int lev,String&name);
+	struct type* newUnion(int lev,String name="");
 	//返回一个作用域为lev的enum类型指针
-	struct type* newEnum(int lev,String&name);
+	struct type* newEnum(int lev,String name="");
+	//返回一个作用域为lev的func类型指针,返回值类型为t
+	struct type* newFunc(int lev,struct type*t);
+	//把t这个函数定死在类型表里(原来是$int(*Func)后面没有参数)
+	//现在加上参数列表
+	struct type* saveFunc(struct type*t);
 	//给结构体或联合增加域
 	void addField(struct type* Struct,struct type* fieldType);
 	//删掉作用域大于lev的类型
@@ -62,6 +67,8 @@ struct TypeTable{
 	struct type* newConst(struct type* t);
 	//返回一个指向t的指针类型
 	struct type* ptr(struct type* t);
+	//返回一个元素是t的数组类型
+	struct type* newArray(struct type* t,int size=0);
 	//返回一个t所指向的类型,如果t是指针类型的话
 	struct type* deref(struct type* t);
 	//返回一个与t1和t2都兼容的类型,如没有就返回NULL

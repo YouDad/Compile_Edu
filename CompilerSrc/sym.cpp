@@ -10,7 +10,6 @@
 	SymbolTable identifierTable=&idt;
 	//level指明当前作用域
 	int level=SCOPE_GLOBAL;
-	std::hash_map<String,struct label>lbt;
 	int labelid=1;
 
 //<functions>
@@ -35,16 +34,30 @@ Symbol install(String&name,int level){
 	return &t->m[name];
 }
 
+//只是用于存储v的int常数,不在表中
+Symbol newIntConst(int v){
+	Symbol ret=new struct symbol;
+	ret->addressed=0;
+	ret->sclass=SCLASS_CONST;
+	ret->temporary=1;
+	ret->type=btot(TYPE_INT);
+	ret->u.c.i=v;
+	return ret;
+}
+
 //新定义一个浮点常量的符号
 //会把这个符号加到常量表中
+//如果已经存在就直接返回表中符号
 Symbol newFloatConst(Symbol s,Coordinate c){
 	static char str[30];
 	if(s->type->op==TYPE_FLOAT)
-		sprintf(str,"$float%u",s->u.c.v.u);
+		sprintf(str,"$float%u",s->u.c.u);
 	else
-		sprintf(str,"$double%ull",s->u.c.v.uu);
+		sprintf(str,"$double%ull",s->u.c.uu);
 	String name=str;
-	Symbol sym=install(name,SCOPE_CONST);
+	Symbol sym=findConstSymbol(name);
+	if(sym)return sym;
+	sym=install(name,SCOPE_CONST);
 	sym->addressed=1;
 	sym->sclass=SCLASS_CONST;
 	sym->src=c;
@@ -142,37 +155,4 @@ Symbol newTemp(){
 	Symbol sym=install(name,level);
 	sym->temporary=1;
 	return sym;
-}
-
-//查询标签表是否有名叫name的标签
-//如果有,返回id>0,如果没有返回0
-int findLabel(String&name){
-	auto it=lbt.find(name);
-	if(it==lbt.end())
-		return 0;
-	else
-		return it->second.id;
-}
-
-//添加一个标签,并返回一个id
-//默认是定义的标签,define代表这次声明是否是定义
-int newLabel(String&name,int define=1){
-	if(findLabel(name)==0){
-		struct label tmp;
-		tmp.defined=define;
-		tmp.id=labelid++;
-		tmp.name=name;
-		tmp.src=src;
-		lbt[name]=tmp;
-	}
-	return findLabel(name);
-}
-
-//给后端使用,给一个id,返回一个标签结构
-struct label getLabel(int id){
-	for(auto it=lbt.begin();it!=lbt.end();it++)
-		if(it->second.id==id)
-			return it->second;
-	assert(0);
-	return label();
 }

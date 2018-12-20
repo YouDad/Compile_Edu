@@ -18,6 +18,10 @@ enum IF_STATE{
 	IF_ELSE,//即将开始识别else
 	IF_END//整个if识别完毕
 };
+enum FUNC_STATE{
+	FUNC_DEFINE=1,
+	FUNC_CALL
+};
 enum OP{
 	_ADD,//'+'
 	_SUB,//'-'
@@ -55,20 +59,20 @@ enum OP{
 	//告诉后端,编译完成,发送结束四元式
 	void sendEnd();
 
-	//告诉后端,生成一个id为labelId的标签
-	void sendLabel(int labelId);
-
-	//告诉后端,跳转到id为labelId的标签
-	void sendGt(int labelId);
-
 	//告诉后端,生成id为forId的循环的第state阶段四元式和代码
 	void sendFor(int forId,enum FOR_STATE state);
 
 	//告诉后端,生成id为ifId的条件的第state阶段四元式和代码
 	void sendIf(int ifId,enum IF_STATE state);
 
+	//生成函数各阶段代码
+	void sendFunc(enum FUNC_STATE state,std::queue<struct symbol*>sq);
+
 	//告诉后端,生成(op,first,second,result)这样的四元式
 	void sendOp(enum OP op,struct symbol* first,struct symbol* second,struct symbol* result);
+
+	//告诉后端,生成(ret,val,,fret)这样的四元式
+	void sendRet(struct symbol*val);
 
 	//通知后端,声明了一个s符号
 	void tellVar(struct symbol* s);
