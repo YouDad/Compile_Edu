@@ -67,6 +67,13 @@ void checkLevel(int lev){
 	}
 }
 
+//寻找一个名字叫做name的类型
+struct type* findType(String name){
+	for(TypeTable*i=table;i;i=i->prev)
+		if(i->m.count(name))
+			return &i->m[name];
+}
+
 //返回一个作用域为lev的空的Struct的类型指针
 struct type* newStruct(int lev,String name){
 	checkLevel(lev);
@@ -140,6 +147,7 @@ struct type* newEnum(int lev,String name){
 void copyField(struct type*&i,struct type*&j){
 	if(j){
 		i=new struct type();
+		i->offset=j->offset;
 		i->name=j->name;
 		i->op=j->op;
 		i->size=j->size;
@@ -174,37 +182,72 @@ struct type* newFunc(int lev,struct type*t){
 	return NULL;
 }
 
+//把tmp的类型写到str里
+void printType(char*str,struct type*tmp){
+	str+=sprintf(str,",");
+	if(isConst(tmp->op))
+		str+=sprintf(str,"const ");
+	switch(tmp->op){
+		case TYPE_UCHAR:sprintf(str,"unsigned char)");break;
+		case TYPE_USHORT:sprintf(str,"unsigned short)");break;
+		case TYPE_UINT:sprintf(str,"unsigned int)");break;
+		case TYPE_ENUM:sprintf(str,"enum %s",tmp->name.c_str());break;
+		case TYPE_CHAR:sprintf(str,"char)");break;
+		case TYPE_SHORT:sprintf(str,"short)");break;
+		case TYPE_INT:sprintf(str,"int)");break;
+		case TYPE_FLOAT:sprintf(str,"float)");break;
+		case TYPE_DOUBLE:sprintf(str,"double)");break;
+		case TYPE_ARRAY:str+=sprintf(str,"[%d]",tmp->size/tmp->kid->size);
+			printType(str,tmp->kid);break;
+		case TYPE_STRUCT:sprintf(str,"struct %s)",tmp->name.c_str());break;
+		case TYPE_UNION:sprintf(str,"union %s)",tmp->name.c_str());break;
+		case TYPE_POINTER:str+=sprintf(str,"* ");printType(str,tmp->kid);break;
+		case TYPE_FUNCTION:sprintf(str,"%s)",tmp->name.c_str());break;
+		case TYPE_VOID:sprintf(str,"void)");break;
+	}
+}
+
 //把t这个函数定死在类型表里(原来是$int(*Func)后面没有参数)
 //现在加上参数列表
 struct type* saveFunc(struct type*t){
-	/*for(TypeTable*i=table;i;i=i->prev){
+	for(TypeTable*i=table;i;i=i->prev){
 		if(i->m.count(t->name)){
-			static char str[20];
-			sprintf(str,"$%s(*Func)",t->name.c_str());
+			//完善函数类型名
+			static char str[1000];
+			sprintf(str,"$%s(*Func)()",t->kid->name.c_str());
+			if(t->kid->next)
+			for(struct type*j=t->kid->next;j;j=j->next){
+				printType(str+strlen(str)-1,j);
+			}
 			String name=str;
-			auto it=i->m.find(name);
-			if(it!=i->m.end())
-				error("Redefined");
-			struct type*tmp=newType(lev,name);
-			tmp->op=TYPE_FUNCTION;
-			tmp->size=0;
-			copyField(tmp->kid,t);
-			return tmp;
+			if(name.find(',')!=-1)
+				name.erase(name.find(','),1);
+			//添加到类型表
+			i->m[name]=*t;
+			//删除原来的不完整类型
+			auto it=i->m.find(t->name);
+			i->m.erase(it);
+			i->m[name].name=name;
+			return &i->m[name];
 		}
 	}
 	assert(0);
-	return NULL;*/
+	return NULL;
 }
 
 //给结构体或联合增加域
 void addField(struct type* Struct,struct type* fieldType){
+	Struct->size+=fieldType->size;
+	int delta=Struct->size-fieldType->size;
 	if(Struct->kid){
 		Struct=Struct->kid;
 		while(Struct->next)
 			Struct=Struct->next;
 		copyField(Struct->next,fieldType);
+		Struct->next->offset=delta;
 	}else{
 		copyField(Struct->kid,fieldType);
+		Struct->kid->offset=delta;
 	}
 }
 
@@ -225,7 +268,7 @@ struct type* newConst(struct type* t){
 	struct type* ret=newType(SCOPE_GLOBAL,name);
 	copyField(ret->kid,t->kid);
 	ret->next=0;
-	ret->op=t->op;
+	ret->op=t->op|TYPE_CONST;
 	ret->size=t->size;
 	return ret;
 }
@@ -256,7 +299,7 @@ struct type* newArray(struct type* t,int size){
 
 //返回一个t所指向的类型,如果t是指针类型的话
 struct type* deref(struct type* t){
-	if(isPointer(t->op))
+	if(isPointer(t->op)||isArray(t->op))
 		return &table->m[t->kid->name];
 	return NULL;
 };

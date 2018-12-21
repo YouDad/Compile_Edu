@@ -27,6 +27,7 @@ Symbol install(String&name,int level){
 	struct symbol sym;
 	sym.name=name;
 	sym.scope=level;
+	sym.needebx=0;
 	SymbolTable t=identifierTable;
 	while(t->level>level)
 		t=t->previous;
@@ -42,6 +43,7 @@ Symbol newIntConst(int v){
 	ret->temporary=1;
 	ret->type=btot(TYPE_INT);
 	ret->u.c.i=v;
+	ret->needebx=0;
 	return ret;
 }
 
@@ -97,7 +99,7 @@ Symbol newEnumConst(String&name,int val,struct type* t,Coordinate c){
 
 //找到名字叫name的标识符
 //没找到就返回NULL
-Symbol findSymbol(String&name){
+Symbol findSymbol(String name){
 	for(SymbolTable t=identifierTable;t;t=t->previous){
 		auto it=t->m.find(name);
 		if(it!=t->m.end())
@@ -119,7 +121,7 @@ Symbol findConstSymbol(String&name){
 //t是这个标识符的类型
 //s是这个标识符的存储类型
 //c是这个符号出现的位置
-Symbol newSymbol(String&name,struct type* t,enum SCLASS s,Coordinate c){
+Symbol newSymbol(String name,struct type* t,enum SCLASS s,Coordinate c){
 	Symbol sym=install(name,level);
 	sym->sclass=s;
 	sym->src=c;
@@ -133,6 +135,7 @@ void enterScope(){
 	SymbolTable newTable=new struct symbolTable();
 	newTable->level=++level;
 	newTable->previous=identifierTable;
+	newTable->size=0;
 	identifierTable=newTable;
 }
 
@@ -148,11 +151,14 @@ void exitScope(){
 //下一个临时变量id
 int tempid=1;
 //向符号表申请一个临时变量
-Symbol newTemp(){
+Symbol newTemp(struct type*t,bool tell){
 	static char str[11];
 	sprintf(str,"$%d",tempid++);
 	String name=str;
 	Symbol sym=install(name,level);
 	sym->temporary=1;
+	sym->sclass=SCLASS_AUTO;
+	copyField(sym->type,t);
+	if(tell)tellVar(sym);
 	return sym;
 }

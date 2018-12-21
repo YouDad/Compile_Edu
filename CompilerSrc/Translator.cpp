@@ -22,9 +22,10 @@ typedef List<ProductionNode> Production;
 Vector<List<Production>>head(1);
 Vector<std::map<Token,bool>>firstSet(1);
 Vector<std::map<Token,bool>>followSet(1);
-Vector<bool>red(1);
 std::map<String,int> stateMap;
 Vector<String> state(1);
+std::map<String,int> actionMap;
+Vector<String> action;
 int stateid(const char*s){
     static int scnt=1;
     if(!stateMap[s]){
@@ -33,11 +34,8 @@ int stateid(const char*s){
         head.push_back(List<Production>());
         firstSet.push_back(std::map<Token,bool>());
         followSet.push_back(std::map<Token,bool>());
-        red.push_back(false);
     }return stateMap[s];
 }
-std::map<String,int> actionMap;
-Vector<String> action;
 int actionid(const char*s){
     static int acnt=0;
 	if(!actionMap.count(s)){
@@ -68,7 +66,7 @@ std::stack<struct symbol*> sem;
 std::stack<String> idStack;
 //操作符栈
 std::stack<Token>ops;
-String lastI,lastS;
+String lastS;
 Token lastK;
 int charVal(){
 	if(token[1]!='\\')
@@ -104,6 +102,9 @@ int charVal(){
 }
 void translatorInit(const char* filename){
 	actionid("Null");
+	Coordinate c={0,0};
+	newSymbol("scanf",(struct type*)1,SCLASS_CONST,c);
+	newSymbol("printf",(struct type*)1,SCLASS_CONST,c);
 	freopen(filename,"r",stdin);
 	for(int i,type,id;~scanf("%d%*c",&i);){
 		char s[100],c;
@@ -136,7 +137,6 @@ void expect(ProductionNode need){
 			lastK=t;
 		}
 		if(t.type==_I_){
-			lastI=token;
 			idStack.push(token);
 		}
 		if(t.type==_S_)
@@ -199,8 +199,8 @@ void expect(ProductionNode need){
 			case _S_:fprintf(stderr,"_S_\n");break;
 			case _C_:fprintf(stderr,"_C_\n");break;
 			case _N_:fprintf(stderr,"_N_\n");break;
-			case _K_:fprintf(stderr,"%s\n",keyWord[need.id]);break;
-			case _B_:fprintf(stderr,"%s\n",boundary[need.id]);break;
+			case _K_:fprintf(stderr,"%s\n",keyWord[need.id].c_str());break;
+			case _B_:fprintf(stderr,"%s\n",boundary[need.id].c_str());break;
 		}
 	}
 }
@@ -217,8 +217,6 @@ void expand(std::stack<ProductionNode>&s,ProductionNode now){
 			return;
 		}
     }
-#define 理论上能用产生式来展开 0
-	assert(理论上能用产生式来展开);
 }
 void act(ProductionNode);
 void run(ProductionNode now){
@@ -241,426 +239,477 @@ int main(){
 	symInit();
 	typeInit();
 	backEndInit();
-	translatorInit("5.gmr");
+	translatorInit("64.gmr");
     freopen("../unittest/Translator (4).txt","r",stdin);
 	lexAnalyzerInit();
-	run(ProductionNode(_T_,48));
+	for(int i=1;i<action.size();i++)
+		printf("%s\n",action[i].c_str());
+	run(ProductionNode(_T_,43));
 	puts("Compile Over!\n\n\n");
     return 0;
 }
 #define nextis(str) else if(action[now.action]==str)
-#define getfsr Symbol f,s,r;s=sem.top();sem.pop();f=sem.top();sem.pop();\
-		r=newTemp();sem.push(r);r->type=btot((enum TYPE)TYPE_INT)
+#define nexthas(str) else if(action[now.action].find(str)!=-1)
+#define getfsr(op) \
+	s=sem.top();sem.pop();\
+	f=sem.top();sem.pop();\
+	r=newTemp(f->type);\
+	sem.push(r);\
+	sendOp(op,f,s,r)
+#define getfrr(op) \
+	f=sem.top();sem.pop();\
+	r=sem.top();sem.pop();\
+	sem.push(r);sendOp(op,f,r,r)
 #define funcdef(name) goto name##end;name:
 #define funcend(name) __asm{ret};name##end:
 #define funcall(name) __asm{call name}
 //执行now后面的动作
 void act(ProductionNode now){
 	printf("!%s\n",action[now.action].c_str());
-	//return;
 	enum{INT=1<<0,LONG=1<<1,SHORT=1<<2,FLOAT=1<<3,DOUBLE=1<<4,
 		VOID=1<<5,CHAR=1<<6,SIGNED=1<<7,UNSIGNED=1<<8,TYPE=1<<9};
 
-	static bool STATIC=false;
+	static bool STATIC=false,STRUCT=false,UNION=false;
 
-	static std::stack<int>ifid;
-	static std::stack<int>forid;
-	static int forId=1;
-	static int ifId=1;
 	static std::stack<int>dimTypeStack;
+	static std::stack<int>forid;
 	static int pointer=0;
-	static enum SCLASS sclass=SCLASS_AUTO;
+	static std::queue<std::pair<Symbol,int>>indec;
+	static std::stack<struct type*>castTypeStack;
 
-
-	if(action[now.action].substr(0,4)=="send"&&
-		action[now.action].size()==5){
-		enum OP op;
-		switch(action[now.action][4]){
-		case '*':op=_MUL;goto send;
-		case '/':op=_DIV;goto send;
-		case '%':op=_MOD;goto send;
-		case '+':op=_ADD;goto send;
-		case '-':op=_SUB;goto send;
-		case '>':op=_GTR;goto send;
-		case '<':op=_LES;goto send;
-		case '&':op=_BTA;goto send;
-		case '|':op=_BTO;goto send;
-		case '^':op=_BTX;goto send;
-send:		getfsr;
-			sendOp(op,f,s,r);
-		}return;
+	if(0);
+	nexthas("send"){
+		Symbol f,s,r;
+		if(0);
+		nextis("send/"){getfsr(_DIV);}
+		nextis("send%"){getfsr(_MOD);}
+		nextis("send>"){getfsr(_GTR);}
+		nextis("send<"){getfsr(_LES);}
+		nextis("send|"){getfsr(_BTO);}
+		nextis("send^"){getfsr(_BTX);}
+		nextis("send>>"){getfsr(_SHR);}
+		nextis("send<<"){getfsr(_SHL);}
+		nextis("send>="){getfsr(_GEQ);}
+		nextis("send<="){getfsr(_LEQ);}
+		nextis("send=="){getfsr(_EQU);}
+		nextis("send!="){getfsr(_NEQ);}
+		nextis("send&&"){getfsr(_AND);}
+		nextis("send||"){getfsr(_OR );}
+		else{
+			Token top=ops.top();ops.pop();
+			if(0);
+			nextis("sendop"){
+				if(boundary[top.id].size()==1)
+					switch(boundary[top.id][0]){
+					case '+':assert(0);break;
+					case '&':r=newTemp(ptr(btot(TYPE_INT)));
+						sendOp(_LEA,sem.top(),0,r);
+						sem.pop();sem.push(r);break;
+					case '*':sem.top()->needebx=1;break;
+					case '-':r=newTemp(sem.top()->type);
+						sendOp(_NEG,sem.top(),0,r);
+						sem.pop();sem.push(r);break;
+					case '~':r=newTemp(sem.top()->type);
+						sendOp(_NOT,sem.top(),0,r);
+						sem.pop();sem.push(r);break;
+					case '!':r=newTemp(sem.top()->type);
+						sendOp(_BTN,sem.top(),0,r);
+						sem.pop();sem.push(r);break;
+					case '=':getfrr(_MOV);break;
+					}
+				else
+					switch(boundary[ops.top().id][0]){
+					case '+':getfrr(_ADD);break;
+					case '-':getfrr(_SUB);break;
+					case '*':getfrr(_MUL);break;
+					case '/':getfrr(_DIV);break;
+					case '%':getfrr(_MOD);break;
+					case '>':getfrr(_SHR);break;
+					case '<':getfrr(_SHL);break;
+					case '^':getfrr(_BTX);break;
+					case '|':getfrr(_BTO);break;
+					case '&':getfrr(_BTA);break;
+					}
+			}
+			nextis("send="){getfrr(_MOV);}
+			nextis("send*"){getfsr(_MUL);}
+			nextis("send&"){getfsr(_BTA);}
+			nextis("send+"){getfsr(_ADD);}
+			nextis("send-"){getfsr(_SUB);}
+		}
 	}
-	if(false);
+	nexthas("func"){
+		static Symbol function;
+		static std::stack<Symbol> ss;
+		if(0);
+		nextis("retfunc"){
+			sendRet(newIntConst(0));
+		}
+		nextis("retefunc"){
+			sendRet(sem.top());sem.pop();
+		}
+		nextis("argfunc"){
+			ss.push(sem.top());sem.pop();
+		}
+		nextis("callfunc"){
+			ss.push(sem.top());sem.pop();
+			sendFunc(FUNC_CALL,ss);
+			sem.push(FRET);
+			while(ss.size())ss.pop();
+		}
+		nextis("newfunc"){
+			funcall(intToType);
+			struct type*tmp=newFunc(level,(struct type*)dimTypeStack.top());
+			dimTypeStack.pop();
+			dimTypeStack.push((int)tmp);
+			function=newSymbol(idStack.top(),0,SCLASS_CONST,src);
+			enterScope();
+		}
+		nextis("paramfunc"){
+			funcall(intToType);
+			struct type*kid=(struct type*)dimTypeStack.top();dimTypeStack.pop();
+			struct type*fun=(struct type*)dimTypeStack.top();dimTypeStack.pop();
+			addField(fun,kid);
+			dimTypeStack.push((int)fun);
+			dimTypeStack.push(0);
+			fun=fun->kid;
+			while(fun->next)
+				fun=fun->next;
+			String varName=idStack.top();
+			fun->name=varName;
+			Symbol s=findSymbol(varName);
+			if(s&&s->scope==level)
+				error("redifined %s",varName.c_str());
+			else{
+				Symbol s=newSymbol(varName,kid,SCLASS_AUTO,src);
+				tellVar(s);
+			}
+			idStack.pop();
+		}
+		nextis("addfunc"){
+			if(dimTypeStack.size()>1)
+				dimTypeStack.pop();
+			struct type*tmp=(struct type*)dimTypeStack.top();
+			dimTypeStack.pop();
+			dimTypeStack.push((int)saveFunc(tmp));
+			function->type=(struct type*)dimTypeStack.top();
+			dimTypeStack.pop();
+			std::stack<Symbol>ss;
+			ss.push(function);
+			sendFunc(FUNC_DEFINE,ss);
+		}
+		nextis("endfunc"){
+			std::stack<Symbol>ss;
+			ss.push(function);
+			sendFunc(FUNC_END,ss);
+			idStack.pop();
+			exitScope();
+		}
+	}
+	nexthas("push"){
+		if(0);
+		nextis("pushOperand"){
+			if(lastS==""&&tsym==0){
+				String name=idStack.top();idStack.pop();
+				Symbol s=findSymbol(name);
+				if(s)sem.push(s);
+				else error("undefined %s",name.c_str());
+			}
+			if(lastS!=""){
+				Symbol s=findConstSymbol(lastS);
+				if(s)sem.push(s);
+				else sem.push(s=newStringConst(lastS,src));
+				tellVar(s);lastS="";
+			}
+			if(tsym!=0){
+				if(tsym->addressed)
+					sem.push(newFloatConst(tsym,src));
+				else sem.push(newIntConst(tsym->u.c.i));
+				tsym=NULL;
+			}
+		}
+		nextis("pushinc"){
+			indec.push(std::make_pair(sem.top(),1));
+		}
+		nextis("pushdec"){
+			indec.push(std::make_pair(sem.top(),-1));
+		}
+		nextis("pushop");
+		nextis("pushStruct"){
+			if(UNION||STRUCT)
+				error("Wrong type");
+			STRUCT=true;
+		}
+		nextis("pushUnion"){
+			if(UNION||STRUCT)
+				error("Wrong type");
+			UNION=true;
+		}
+		nextis("pushType"){
+			if(STRUCT||UNION){
+				struct type* tmp=findType(idStack.top());
+				idStack.pop();
+				dimTypeStack.push((int)tmp);
+				STRUCT=UNION=false;
+			}else if(dimTypeStack.size()){
+				int type=dimTypeStack.top();
+				if(type<TYPE)
+					dimTypeStack.pop();
+				else
+					type=0;
+
+#define xx(str,op) else if((*id2string[now.type])[now.id]==str)\
+						dimTypeStack.push(type|op)
+
+				switch(type){
+				case VOID:case DOUBLE:case FLOAT:
+				case SIGNED|CHAR:case UNSIGNED|CHAR:
+				case SIGNED|SHORT|INT:case UNSIGNED|SHORT|INT:
+				case SIGNED|LONG|INT:case UNSIGNED|LONG|INT:
+					error("invalid type");break;
+				case INT:
+					if(0);xx("long",LONG);xx("short",SHORT);xx("signed",SIGNED);
+					xx("unsigned",UNSIGNED);else error("invalid type");break;
+				case LONG:case SHORT:
+					if(0);xx("int",INT);xx("signed",SIGNED);
+					xx("unsigned",UNSIGNED);else error("invalid type");break;
+				case CHAR:case INT|LONG:case INT|SHORT:
+					if(0);xx("signed",SIGNED);xx("unsigned",UNSIGNED);
+					else error("invalid type");break;
+				case SIGNED:case UNSIGNED:
+					if(0);xx("long",LONG);xx("short",SHORT);xx("int",INT);
+					xx("char",CHAR);else error("invalid type");break;
+				case SIGNED|INT:case UNSIGNED|INT:
+					if(0);xx("long",LONG);xx("short",SHORT);
+					else error("invalid type");break;
+				case SIGNED|SHORT:case SIGNED|LONG:
+				case UNSIGNED|SHORT:case UNSIGNED|LONG:
+					if((*id2string[now.type])[now.id]=="int")
+						dimTypeStack.push(type|INT);
+					else error("invalid type");break;
+				default:
+#undef xx
+#define xx(str,op) else if((*id2string[now.type])[now.id]==str)dimTypeStack.push(op)
+
+					if(0);xx("int",INT);xx("void",VOID);xx("long",LONG);
+					xx("short",SHORT);xx("char",CHAR);xx("double",DOUBLE);
+					xx("float",FLOAT);xx("signed",SIGNED);xx("unsigned",UNSIGNED);
+					else assert(0);
+				}
+			}else{
+				if(0);xx("int",INT);xx("void",VOID);xx("long",LONG);
+				xx("short",SHORT);xx("char",CHAR);xx("double",DOUBLE);
+				xx("float",FLOAT);xx("signed",SIGNED);xx("unsigned",UNSIGNED);
+				else assert(0);
+#undef xx
+			}
+		}
+	}
+	nexthas("pop"){
+		if(0);
+		nextis("popOperand"){
+			if(boundary[now.id]==","||!forid.size())
+				sem.pop();
+			while(indec.size()){
+				Symbol s=indec.front().first;
+				sendOp(_ADD,s,newIntConst(indec.front().second),s);
+				indec.pop();
+			}
+		}
+		nextis("popType"){
+			dimTypeStack.pop();
+		}
+		nextis("popType&Operand"){
+			sem.pop();
+			dimTypeStack.pop();
+		}
+	}
+	nexthas("if"){
+		static std::stack<int>ifid;
+		static int ifId=1;
+		if(0);
+		nextis("if1"){
+			ifid.push(ifId++);
+			sendIf(ifid.top(),IF_THEN);
+		}
+		nextis("if2"){
+			sendIf(ifid.top(),IF_ELSE);
+		}
+		nextis("if3"){
+			sendIf(ifid.top(),IF_END);
+			ifid.pop();
+		}
+		nextis("ife1"){
+			ifid.push(ifId++);
+			sendIf(ifid.top(),IF_THEN);
+		}
+		nextis("ife2"){
+			sendCON(sem.top());
+			sem.pop();
+			sendIf(ifid.top(),IF_ELSE);
+		}
+		nextis("ife3"){
+			sendCON(sem.top());sem.pop();
+			sendIf(ifid.top(),IF_END);ifid.pop();
+			Symbol r=newTemp(btot(TYPE_INT));
+			sem.push(r);
+			sendOp(_MOV,CON,0,r);
+		}
+	}
+	nexthas("for"){
+		static int forId=1;
+		if(0);
+		nextis("for1"){
+			if(forid.size())
+				sem.pop();
+			forid.push(forId++);
+			sendFor(forid.top(),FOR_CMP);
+		}
+		nextis("for2"){
+			sendFor(forid.top(),FOR_INC);
+		}
+		nextis("for3"){
+			while(indec.size()){
+				Symbol s=indec.front().first;
+				sendOp(_ADD,s,newIntConst(indec.front().second),s);
+				indec.pop();
+			}
+			sendFor(forid.top(),FOR_BLOCK);
+		}
+		nextis("for2for3"){
+			sendFor(forid.top(),FOR_INC);
+			sem.push(0);
+			sendFor(forid.top(),FOR_BLOCK);
+		}
+		nextis("for4"){
+			sendFor(forid.top(),FOR_END);
+			forid.pop();
+		}
+		nextis("for5"){
+			sendFor(forid.top(),FOR_BREAK);
+		}
+		nextis("for6"){
+			sendFor(forid.top(),FOR_CONTINUE);
+		}
+	}
+	nexthas("new"){
+		if(0);
+		nextis("newArray"){
+			int sz=0;
+			if(sem.size()&&sem.top()->addressed==0){
+				sz=sem.top()->u.c.i;sem.pop();
+			}
+			funcall(intToType);
+			struct type*tmp=(struct type*)dimTypeStack.top();
+			dimTypeStack.pop();
+			tmp=newArray(tmp,sz);
+			dimTypeStack.push((int)tmp);
+		}
+		nextis("newNamedSU"){
+			String name=idStack.top();idStack.pop();
+			struct type* tmp;
+			if(STRUCT)
+				tmp=newStruct(level,name);
+			else
+				tmp=newUnion(level,name);
+			STRUCT=UNION=false;
+			dimTypeStack.push((int)tmp);
+		}
+		nextis("newUnamedSU"){
+			struct type* tmp;
+			if(STRUCT)
+				tmp=newStruct(level);
+			else
+				tmp=newUnion(level);
+			STRUCT=UNION=false;
+			dimTypeStack.push((int)tmp);
+		}
+	}
 	nextis("find"){
-		//`postfix_expression [ expression ] _ApopFindPush
+		Symbol s=sem.top();sem.pop();
+		Symbol f=sem.top();sem.pop();
+		Symbol r=newTemp(f->type);
+		sem.push(r);sendOp(_ADD,f,s,r);
+		sem.top()->needebx=1;
 	}
-	nextis("pushOperand"){
-		//`_I_ _ApushOperand
-		//`_C_ _ApushOperand
-		//`_N_ _ApushOperand
-		//`_S_ _ApushOperand
-		if(lastS!=""){
-			sem.push(findConstSymbol(lastS));
-			lastS="";
-		}
-		if(tsym!=0){
-			if(tsym->addressed)
-				sem.push(newFloatConst(tsym,src));
-			else sem.push(newIntConst(tsym->u.c.i));
-			tsym=NULL;
-		}
-	}
-	nextis("call"){
-		//`postfix_expression ( ) _Acall
-		//`postfix_expression ( argument_expression_list ) _Acall
-	}
-	nextis("arg"){
-		//`argument_expression_list , assignment_expression _Aarg
-		//`assignment_expression _Aarg
-		//把语义栈栈顶放到参数队列里
+	nextis("addField"){
+		funcall(intToType);
+		struct type* fieldType=(struct type*)dimTypeStack.top();dimTypeStack.pop();
+		struct type* suType=(struct type*)dimTypeStack.top();dimTypeStack.pop();
+		String tmp=fieldType->name;
+		fieldType->name=idStack.top();idStack.pop();
+		addField(suType,fieldType);
+		fieldType->name=tmp;
+		dimTypeStack.push((int)suType);
+		dimTypeStack.push(0);
 	}
 	nextis(".member"){
-		//`postfix_expression . _I_ _A.member
-	}
-	nextis("->member"){
-		//`postfix_expression -> _I_ _A->member
-	}
-	nextis("pushinc"){
-		//`postfix_expression ++ _Apushinc
-	}
-	nextis("pushdec"){
-		//`postfix_expression -- _Apushdec
+		Symbol s=sem.top();sem.pop();
+		String memberName=idStack.top();idStack.pop();
+		Symbol sameSym;
+		for(struct type*i=s->type->kid
+				;i;i=i->next){
+			if(i->name==memberName){
+				sameSym=newTemp(i,false);
+				sameSym->scope=s->scope;
+				sameSym->addressed=1;
+				sameSym->temporary=0;
+				sameSym->offset=i->offset+s->offset;
+				sameSym->src=src;
+			}
+		}
+		sem.push(sameSym);
 	}
 	nextis("inc"){
-		//`++ unary_expression _Ainc
 		Symbol f=sem.top();
-		Symbol t=newTemp();
+		Symbol t=newTemp(f->type);
 		sem.pop();sem.push(t);
 		sendOp(_INC,f,NULL,t);
 	}
 	nextis("dec"){
-		//`-- unary_expression _Adec
 		Symbol f=sem.top();
-		Symbol t=newTemp();
+		Symbol t=newTemp(f->type);
 		sem.pop();sem.push(t);
 		sendOp(_DEC,f,NULL,t);
 	}
 	nextis("sizeof"){
-		//`sizeof unary_expression _Asizeof
 		Symbol f=sem.top();sem.pop();
 		sem.push(newIntConst(f->type->size));
 	}
-	nextis("pushop"){
-		//`unary_operator _Apushop unary_expression _Asendop
-
-	}
-	nextis("sendop"){
-		//`unary_operator _Apushop unary_expression _Asendop
-
-	}
-	nextis("pushCastType"){
-		//`:: type_specifier _ApushCastType : cast_expression _ApopCastType
-	}
-	nextis("popCastType"){
-		//`:: type_specifier _ApushCastType : cast_expression _ApopCastType
-
-	}
-	nextis("send="){
-		//`declarator _AtellVar = assignment_expression _Asend=
-		Symbol f=sem.top();
-		Symbol t=newTemp();
-		sem.pop();sem.push(t);
-		sendOp(_MOV,f,NULL,t);
-	}
-	nextis("send>>"){getfsr;sendOp(_SHR,f,s,r);}
-	nextis("send<<"){getfsr;sendOp(_SHL,f,s,r);}
-	nextis("send>="){getfsr;sendOp(_GEQ,f,s,r);}
-	nextis("send<="){getfsr;sendOp(_LEQ,f,s,r);}
-	nextis("send=="){getfsr;sendOp(_EQU,f,s,r);}
-	nextis("send!="){getfsr;sendOp(_NEQ,f,s,r);}
-	nextis("send&&"){getfsr;sendOp(_AND,f,s,r);}
-	nextis("send||"){getfsr;sendOp(_OR ,f,s,r);}
-	nextis("popOperand"){
-		//`expression , _ApopOperand assignment_expression
-		//`expression ; _ApopOperand
-		if(boundary[now.id]==","||!forid.size())
-			sem.pop();
-	}
 	nextis("checkConst"){
-		//`conditional_expression _Acheckconst
 		if(sem.top()->sclass!=SCLASS_CONST){
 			error("Array length must is const integer.");
 		}
 	}
-	nextis("saveSclass"){
-		//`static _AsaveSclass
-		//`auto _AsaveSclass
-		if((*id2string[lastK.type])[lastK.id]=="static"){
-			sclass=SCLASS_STATIC;
-		}else{
-			sclass=SCLASS_AUTO;
-		}
-	}
-	nextis("pushStruct"){
-		//`struct _ApushStruct
-	}
-	nextis("pushUnion"){
-		//`union _ApushUnion
-	}
-	nextis("newSU"){
-
-	}
-	nextis("addField"){
-		//`declarator _AaddField
-		//`struct_declarator_list , declarator _AaddField
-	}
-	nextis("pushType"){
-		//`specifier_qualifier_list _ApushType struct_declarator_list ; _ApopType
-		if(dimTypeStack.size()){
-			int type=dimTypeStack.top();
-			if(type<TYPE)
-				dimTypeStack.pop();
-			else
-				type=0;
-			switch(type){
-			case VOID:case DOUBLE:case FLOAT:
-			case SIGNED|CHAR:case UNSIGNED|CHAR:
-			case SIGNED|SHORT|INT:case UNSIGNED|SHORT|INT:
-			case SIGNED|LONG|INT:case UNSIGNED|LONG|INT:
-				error("invalid type");break;
-			case INT:
-				if((*id2string[now.type])[now.id]=="long")dimTypeStack.push(type|LONG);
-				else if((*id2string[now.type])[now.id]=="short")dimTypeStack.push(type|SHORT);
-				else if((*id2string[now.type])[now.id]=="signed")dimTypeStack.push(type|SIGNED);
-				else if((*id2string[now.type])[now.id]=="unsigned")dimTypeStack.push(type|UNSIGNED);
-				else error("invalid type");break;
-			case LONG:case SHORT:
-				if((*id2string[now.type])[now.id]=="int")dimTypeStack.push(type|INT);
-				else if((*id2string[now.type])[now.id]=="signed")dimTypeStack.push(type|SIGNED);
-				else if((*id2string[now.type])[now.id]=="unsigned")dimTypeStack.push(type|UNSIGNED);
-				else error("invalid type");break;
-			case CHAR:case INT|LONG:case INT|SHORT:
-				if((*id2string[now.type])[now.id]=="signed")dimTypeStack.push(type|SIGNED);
-				else if((*id2string[now.type])[now.id]=="unsigned")dimTypeStack.push(type|UNSIGNED);
-				else error("invalid type");break;
-			case SIGNED:case UNSIGNED:
-				if((*id2string[now.type])[now.id]=="long")dimTypeStack.push(type|LONG);
-				else if((*id2string[now.type])[now.id]=="int")dimTypeStack.push(type|INT);
-				else if((*id2string[now.type])[now.id]=="short")dimTypeStack.push(type|SHORT);
-				else if((*id2string[now.type])[now.id]=="char")dimTypeStack.push(type|CHAR);
-				else error("invalid type");break;
-			case SIGNED|INT:case UNSIGNED|INT:
-				if((*id2string[now.type])[now.id]=="long")dimTypeStack.push(type|LONG);
-				else if((*id2string[now.type])[now.id]=="short")dimTypeStack.push(type|SHORT);
-				else error("invalid type");break;
-			case SIGNED|SHORT:case SIGNED|LONG:
-			case UNSIGNED|SHORT:case UNSIGNED|LONG:
-				if((*id2string[now.type])[now.id]=="int")dimTypeStack.push(type|INT);
-				else error("invalid type");break;
-			default:
-				if((*id2string[now.type])[now.id]=="int")dimTypeStack.push(INT);
-				else if((*id2string[now.type])[now.id]=="void")dimTypeStack.push(VOID);
-				else if((*id2string[now.type])[now.id]=="long")dimTypeStack.push(LONG);
-				else if((*id2string[now.type])[now.id]=="short")dimTypeStack.push(SHORT);
-				else if((*id2string[now.type])[now.id]=="char")dimTypeStack.push(CHAR);
-				else if((*id2string[now.type])[now.id]=="double")dimTypeStack.push(DOUBLE);
-				else if((*id2string[now.type])[now.id]=="float")dimTypeStack.push(FLOAT);
-				else if((*id2string[now.type])[now.id]=="signed")dimTypeStack.push(SIGNED);
-				else if((*id2string[now.type])[now.id]=="unsigned")dimTypeStack.push(UNSIGNED);
-				else{
-					assert(0);
-				}
-			}
-		}else{
-			if((*id2string[now.type])[now.id]=="int")dimTypeStack.push(INT);
-			else if((*id2string[now.type])[now.id]=="void")dimTypeStack.push(VOID);
-			else if((*id2string[now.type])[now.id]=="long")dimTypeStack.push(LONG);
-			else if((*id2string[now.type])[now.id]=="short")dimTypeStack.push(SHORT);
-			else if((*id2string[now.type])[now.id]=="char")dimTypeStack.push(CHAR);
-			else if((*id2string[now.type])[now.id]=="double")dimTypeStack.push(DOUBLE);
-			else if((*id2string[now.type])[now.id]=="float")dimTypeStack.push(FLOAT);
-			else if((*id2string[now.type])[now.id]=="signed")dimTypeStack.push(SIGNED);
-			else if((*id2string[now.type])[now.id]=="unsigned")dimTypeStack.push(UNSIGNED);
-			else{
-				assert(0);
-			}
-		}
-	}
-	nextis("popType"){
-		//`specifier_qualifier_list _ApushType struct_declarator_list ; _ApopType
-		dimTypeStack.pop();
-	}
-	nextis("addEnum"){
-		//`_I_ _AaddEnum
-		//`_I_ _AaddEnum = constant_expression _Aaddval
-	}
-	nextis("addVal"){
-		//`_I_ _AaddEnum = constant_expression _Aaddval
-	}
-	nextis("newEnum"){
-		//`enum _I_ { _AnewEnum _Aenterscope enumerator_list } _Aexitscope _ApushType
-		//`enum { _AnewEnum _Aenterscope enumerator_list } _Aexitscope _ApushType
-		//Type=newEnum(level);
-	}
-	nextis("enum"){
-		//`enum _I_ _Aenum _ApushType
-	}
-	nextis("const"){
-		//`const _Aconst
-	}
 	nextis("ptr"){
-		//`* _Aptr
 		pointer++;
-	}
-	nextis("newArray"){
-		//`direct_declarator [ constant_expression _AcheckConst ] _AnewArray
-		//`direct_declarator [ ] _AnewArray
-		int sz=0;
-		if(sem.size()&&sem.top()->addressed==0){
-			sz=sem.top()->u.c.i;sem.pop();
-		}
-		funcall(intToType);
-		struct type*tmp=(struct type*)dimTypeStack.top();
-		dimTypeStack.pop();
-		tmp=newArray(tmp,sz);
-		dimTypeStack.push((int)tmp);
+		ops.pop();
 	}
 	nextis("tellVar"){
-		//`declarator _AtellVar
-		//`declarator _AtellVar = assignment_expression _Asend=
 		funcall(intToType);
 		struct type*tmp=(struct type*)dimTypeStack.top();
 		while(pointer>0)
 			tmp=ptr(tmp),
 			pointer--;
-		Symbol s=newSymbol(idStack.top(),tmp,sclass,src);
+		Symbol s=newSymbol(idStack.top(),tmp,SCLASS_AUTO,src);
+		s->addressed=1;
 		tellVar(s);idStack.pop();
-	}
-	nextis("if1"){
-		//`logical_or_expression ? _Aif1 expression : _Aif2 conditional_expression _Aif3
-		//`if ( expression ) _Aif1 statement _Aif2 else statement _Aif3
-		ifid.push(ifId++);
-		sendIf(ifid.top(),IF_THEN);
-	}
-	nextis("if2"){
-		//`logical_or_expression ? _Aif1 expression : _Aif2 conditional_expression _Aif3
-		//`if ( expression ) _Aif1 statement _Aif2 else statement _Aif3
-		sendIf(ifid.top(),IF_ELSE);
-	}
-	nextis("if3"){
-		//`logical_or_expression ? _Aif1 expression : _Aif2 conditional_expression _Aif3
-		//`if ( expression ) _Aif1 statement _Aif2 else statement _Aif3
-		sendIf(ifid.top(),IF_END);
-		ifid.pop();
-	}
-	/*
-		`for ( expression_statement _Afor1 expression_statement _Afor2 ) _Afor3 statement _Afor4
-		`for ( expression_statement _Afor1 expression_statement _Afor2 expression ) _Afor3 statement _Afor4
-		`continue _Afor6 ;
-		`break _Afor5 ;
-	*/
-	nextis("for1"){
-		if(forid.size())
-			sem.pop();
-		forid.push(forId++);
-		sendFor(forid.top(),FOR_CMP);
-	}
-	nextis("for2"){
-		sendFor(forid.top(),FOR_INC);
-	}
-	nextis("for3"){
-		sendFor(forid.top(),FOR_BLOCK);
-	}
-	nextis("for2for3"){
-		sendFor(forid.top(),FOR_INC);
-		sem.push(0);
-		sendFor(forid.top(),FOR_BLOCK);
-	}
-	nextis("for4"){
-		sendFor(forid.top(),FOR_END);
-		forid.pop();
-	}
-	nextis("for5"){
-		sendFor(forid.top(),FOR_BREAK);
-	}
-	nextis("for6"){
-		sendFor(forid.top(),FOR_CONTINUE);
-	}
-	nextis("ret"){
-		//`return ; _Aret
-		sendRet(newIntConst(0));
-	}
-	nextis("rete"){
-		//`return expression ; _Arete
-		Symbol s=sem.top();
-		sem.pop();
-		sendRet(s);
+		sem.push(s);
 	}
 	nextis("enterscope"){
-		//`{ _Aenterscope declaration_list } _Aexitscope
-		//`{ _Aenterscope statement_list } _Aexitscope
-		//`{ _Aenterscope declaration_list statement_list } _Aexitscope
 		enterScope();
+		enterScopeB();
 	}
 	nextis("exitscope"){
-		//`{ _Aenterscope declaration_list } _Aexitscope
-		//`{ _Aenterscope statement_list } _Aexitscope
-		//`{ _Aenterscope declaration_list statement_list } _Aexitscope
 		exitScope();
-	}
-	nextis("newfunc"){
-		//`: type_specifier _I_ ( _Anewfunc parameter_list ) _Aaddfunc compound_statement
-		//`: type_specifier _I_ ( _Anewfunc ) _Aaddfunc compound_statement
-		funcall(intToType);
-		struct type*tmp=newFunc(level,(struct type*)dimTypeStack.top());
-		dimTypeStack.pop();
-		dimTypeStack.push((int)tmp);
-	}
-	nextis("addfunc"){
-		//`: type_specifier _I_ ( _Anewfunc parameter_list ) _Aaddfunc compound_statement
-		//`: type_specifier _I_ ( _Anewfunc ) _Aaddfunc compound_statement
-		dimTypeStack.pop();
-		String name=idStack.top();idStack.pop();
-		Symbol s=newSymbol(name,(struct type*)dimTypeStack.top(),SCLASS_CONST,src);
-		dimTypeStack.pop();
-		std::queue<Symbol>sq;
-		sq.push(s);
-		sendFunc(FUNC_DEFINE,sq);
-	}
-	nextis("funcAddKidWithName"){
-		//`declaration_specifiers declarator _AfuncAddKidWithName
-		funcall(intToType);
-		struct type*kid=(struct type*)dimTypeStack.top();dimTypeStack.pop();
-		struct type*fun=(struct type*)dimTypeStack.top();dimTypeStack.pop();
-		addField(fun,kid);
-		dimTypeStack.push((int)fun);
-		dimTypeStack.push(0);
-		fun=fun->kid;
-		while(fun->next)
-			fun=fun->next;
-		fun->name=idStack.top();
-		idStack.pop();
+		exitScopeB();
+		remoteType(level);
 	}
 	nextis("end"){
-		//`translation_unit _Aend
 		sendEnd();
 	}
-	nextis("newEnumenterscope"){
 
-	}
-	nextis("enumpushType"){
 
-	}
-	nextis("newSUenterscope"){
-
-	}
-	nextis("exitscopepushType"){
-
-	}
-	else{
-#define 不会吧，有没捕捉的动作？？？ 0
-		assert(不会吧，有没捕捉的动作？？？);
-	}
 	funcdef(intToType){
 		int type=dimTypeStack.top();
 		dimTypeStack.pop();
@@ -668,8 +717,8 @@ send:		getfsr;
 		if(type<TYPE){
 			switch(type){
 			case VOID:tmp=btot(TYPE_VOID);break;
-			case FLOAT:tmp=btot(TYPE_VOID);break;
-			case DOUBLE:tmp=btot(TYPE_VOID);break;
+			case FLOAT:tmp=btot(TYPE_FLOAT);break;
+			case DOUBLE:tmp=btot(TYPE_DOUBLE);break;
 			case CHAR:case SIGNED|CHAR:
 				tmp=btot(TYPE_CHAR);break;
 			case UNSIGNED|CHAR:

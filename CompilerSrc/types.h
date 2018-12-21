@@ -22,6 +22,8 @@ struct type{
 	int op;
 	//域的偏移量
 	int offset;
+	//数组类型的长度
+	int len;
 	//用于存放浮点常量的符号指针
 	struct symbol* constFloat;
 	//kid是数组,结构体的指向下一级类型的指针
@@ -48,6 +50,10 @@ struct TypeTable{
 	void typeInit();
 	//检查域的lev值
 	void checkLevel();
+	//dfs函数,完全复制类型,i=j
+	void copyField(struct type*&i,struct type*&j);
+	//寻找一个名字叫做name的类型
+	struct type* findType(String name);
 	//返回一个作用域为lev的空的Struct的类型指针
 	struct type* newStruct(int lev,String name="");
 	//返回一个作用域为lev的union类型指针

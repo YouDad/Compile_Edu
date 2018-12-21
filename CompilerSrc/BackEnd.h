@@ -20,6 +20,7 @@ enum IF_STATE{
 };
 enum FUNC_STATE{
 	FUNC_DEFINE=1,
+	FUNC_END,
 	FUNC_CALL
 };
 enum OP{
@@ -56,6 +57,10 @@ enum OP{
 	//后端初始化函数
 	void backEndInit();
 
+	//告诉后端进入或者退出作用域
+	void enterScopeB();
+	void exitScopeB();
+
 	//告诉后端,编译完成,发送结束四元式
 	void sendEnd();
 
@@ -66,7 +71,7 @@ enum OP{
 	void sendIf(int ifId,enum IF_STATE state);
 
 	//生成函数各阶段代码
-	void sendFunc(enum FUNC_STATE state,std::queue<struct symbol*>sq);
+	void sendFunc(enum FUNC_STATE state,std::stack<struct symbol*>sq);
 
 	//告诉后端,生成(op,first,second,result)这样的四元式
 	void sendOp(enum OP op,struct symbol* first,struct symbol* second,struct symbol* result);
@@ -74,10 +79,13 @@ enum OP{
 	//告诉后端,生成(ret,val,,fret)这样的四元式
 	void sendRet(struct symbol*val);
 
+	//告诉后端,生成(=,s,,con)四元式
+	void sendCON(struct symbol*s);
+
 	//通知后端,声明了一个s符号
 	void tellVar(struct symbol* s);
 
-	//通知后端,声明了一个t类型
-	void tellType(struct type* t);
-
 //<exported data>
+	extern struct symbol* CON;
+	extern struct symbol* FRET;
+	extern struct symbol* FCMP;

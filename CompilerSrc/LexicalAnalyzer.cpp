@@ -127,21 +127,26 @@ Token nextString(){
 Token next();
 //识别下一个界符
 Token nextBoundary(){
-	token+=nowchar;getNextChar();
-    if(token[0]=='/'&&nowchar=='/'){//line commit
-        while(lastchar!='\n')getNextChar();
-        return next();
-    }
-    if(token[0]=='/'&&nowchar=='*'){//block commit
-        while(1){
-            do getNextChar();while(nowchar!='*');
-            getNextChar();
-            if(nowchar=='/'){
-                getNextChar();
-                return next();
-            }
-        }
-    }
+	if(token.size()==0){
+		token+=nowchar;getNextChar();
+	}
+	if(token[0]=='/'){
+		token+=nowchar;getNextChar();
+		if(nowchar=='/'){//line commit
+			while(lastchar!='\n')getNextChar();
+			return next();
+		}
+		if(nowchar=='*'){//block commit
+			while(1){
+				do getNextChar();while(nowchar!='*');
+				getNextChar();
+				if(nowchar=='/'){
+					getNextChar();
+					return next();
+				}
+			}
+		}
+	}
     while(boundaryMap.count(token+nowchar)){
         token+=nowchar;getNextChar();
     }return Token(_B_,boundaryMap[token]);

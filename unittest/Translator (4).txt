@@ -1,16 +1,45 @@
-void*j;
-int b[];
 int a[10000];
+void*j=a+1;
+int b[];
+struct:student{
+	int yuwen;
+	float shuxue;
+	short yinyu;
+}ni;
+struct::{
+	int wuli;
+	int huaxue;
+	int shengwu;
+}like;
 :int max(int a,int b){
 	return a>b?a:b;
 }
+:void sort(int n){
+	int i,j;
+	for(i=0;i<n;i++)
+		for(j=i+1;j<n;j++)
+			if(a[i]>a[j]){
+				int tmp=a[i];
+				a[i]=a[j];
+				a[j]=tmp;
+			}else;
+	return;
+}
 :int main(){
 	int n,i,m;
+	struct student wo;
+	ni.yuwen=150;
+	like.shengwu=150;
+	wo.yinyu=0;
 	scanf("%d",&n);
 	for(i=0;i<n;i++)
 		scanf("%d",a+i);
 	for(m=a[0],i=1;i<n;i++)
 		m=max(m,a[i]);
 	printf("max:%d\n",m);
+	sort(n);
+	printf("排序后的结果是:\n");
+	for(i=0;i<n;i++)
+		printf("%d\n",a[i]);
 	return 0;
 }

@@ -49,6 +49,7 @@
 		//如果该类型的常量可以作为指令的一部分
 		//即不能被寻址,则addressed的值为0
 		unsigned addressed:1;
+		unsigned needebx:1;
 	}* Symbol;
 
 	//注:在第k层声明的局部变量,其scope域等于LOCAL+k
@@ -82,6 +83,10 @@
 	//如果已经存在就直接返回表中符号
 	Symbol newFloatConst(Symbol s,Coordinate c);
 
+	//新定义一个字符串常量的符号
+	//会把这个符号加到常量表中
+	Symbol newStringConst(String&str,Coordinate c);
+
 	//新定义一个枚举常量的标识符
 	//name是这个枚举常量的名字
 	//val是这个枚举常量的常量值
@@ -91,7 +96,7 @@
 
 	//找到名字叫name的标识符
 	//没找到就返回NULL
-	Symbol findSymbol(String&name);
+	Symbol findSymbol(String name);
 
 	//找到名字叫name的常量标识符
 	//没找到就返回NULL
@@ -102,7 +107,7 @@
 	//t是这个标识符的类型
 	//s是这个标识符的存储类型
 	//c是这个符号出现的位置
-	Symbol newSymbol(String&name,type* t,enum SCLASS s,Coordinate c);
+	Symbol newSymbol(String name,type* t,enum SCLASS s,Coordinate c);
 
 	//告诉符号表,进入了一个作用域
 	void enterScope();
@@ -112,7 +117,7 @@
 	void exitScope();
 
 	//向符号表申请一个临时变量
-	Symbol newTemp();
+	Symbol newTemp(struct type*t,bool tell=true);
 
 //<exported data>
 
