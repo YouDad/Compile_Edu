@@ -5,7 +5,7 @@
 //<exported types>
 
 	typedef struct coord{
-		char* file;//该定义的文件名
+		// char* file;//该定义的文件名
 		unsigned x,y;//行号和字符位置
 	}Coordinate;
 
@@ -74,7 +74,7 @@
 
 	//符号表初始化函数
 	void symInit();
-	
+
 	//只是用于存储v的int常数,不在表中
 	Symbol newIntConst(int v);
 

@@ -1,5 +1,4 @@
 int a[100];
-void*j=a+1;
 int b[];
 struct:student{
 	int yuwen;
@@ -15,7 +14,7 @@ struct::{
 	return a>b?a:b;
 }
 :void sort(int n){
-	int i,j;//[esi+0],
+	int i,j;
 	for(i=0;i<n;i++)
 		for(j=i+1;j<n;j++)
 			if(a[i]>a[j]){

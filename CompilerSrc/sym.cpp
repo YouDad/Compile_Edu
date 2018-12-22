@@ -159,6 +159,7 @@ Symbol newTemp(struct type*t,bool tell){
 	sym->temporary=1;
 	sym->sclass=SCLASS_AUTO;
 	copyField(sym->type,t);
+	sym->type->op&=TYPE_CONST-1;
 	if(tell)tellVar(sym);
 	return sym;
 }

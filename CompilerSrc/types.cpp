@@ -314,7 +314,7 @@ bool eqtree(struct type* it,struct type* jt){
 	for(;i&&j;i=i->next,j=j->next)
 		ret&=eqtree(i,j);
 	if(!i&&!j)
-		return i->size==j->size&&i->op==j->op&&ret;
+		return ret;
 	return false;
 }
 

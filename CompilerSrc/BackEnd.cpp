@@ -397,6 +397,8 @@ void sendFunc(enum FUNC_STATE state,std::stack<Symbol>ss){
 void sendFloatOp(enum OP op,Symbol first,Symbol second,Symbol result);
 //告诉后端,生成(op,first,second,result)这样的四元式
 void sendOp(enum OP op,Symbol first,Symbol second,Symbol result){
+	if(isConst(result->type->op))
+		error("Constant can't be change");
 	if(second)
 		objSay("(%s,%s,%s,%s)",op_str[op],first->name.c_str(),
 			second->name.c_str(),result->name.c_str());
@@ -631,6 +633,16 @@ void sendOp(enum OP op,Symbol first,Symbol second,Symbol result){
 		);
 		break;
 	case _MOV:
+		if(first->needebx==result->needebx){
+			if(!compatibleType(first->type,result->type))
+				error("Type error, Can't assign");
+		}else if(first->needebx){
+			if(!compatibleType(first->type->kid,result->type))
+				error("Type error, Can't assign");
+		}else if(first->needebx){
+			if(!compatibleType(first->type,result->type->kid))
+				error("Type error, Can't assign");
+		}
 		eax=first;
 		asmSay("\t%s %s,%s",mov,
 			whatAReg(first),

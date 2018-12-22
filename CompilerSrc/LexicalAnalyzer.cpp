@@ -150,15 +150,6 @@ Token nextBoundary(){
     while(boundaryMap.count(token+nowchar)){
         token+=nowchar;getNextChar();
     }
-	if(token=="#"){
-		token+=nowchar;getNextChar();
-		if(nowchar=='d'){
-			scanf("%[^?]?%d?%d",&src.file,&src.x,&src.y);
-			return Next();
-		}else{
-			error("Invalid Precompile Instructment");
-		}
-	}
 	if(boundaryMap.count(token))
 		return Token(_B_,boundaryMap[token]);
 	else error("Invalid Character");
