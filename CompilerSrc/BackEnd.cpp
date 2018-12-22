@@ -651,7 +651,7 @@ void sendOp(enum OP op,Symbol first,Symbol second,Symbol result){
 		}else if(first->needebx){
 			if(!compatibleType(first->type->kid,result->type))
 				error("Type error, Can't assign");
-		}else if(first->needebx){
+		}else if(result->needebx){
 			if(!compatibleType(first->type,result->type->kid))
 				error("Type error, Can't assign");
 		}
