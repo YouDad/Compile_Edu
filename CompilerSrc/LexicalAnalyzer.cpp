@@ -132,11 +132,11 @@ Token nextBoundary(){
 	}
 	if(token[0]=='/'){
 		token+=nowchar;getNextChar();
-		if(nowchar=='/'){//line commit
+		if(token=="//"){//line commit
 			while(lastchar!='\n')getNextChar();
 			return next();
 		}
-		if(nowchar=='*'){//block commit
+		if(token=="/*"){//block commit
 			while(1){
 				do getNextChar();while(nowchar!='*');
 				getNextChar();
@@ -149,7 +149,19 @@ Token nextBoundary(){
 	}
     while(boundaryMap.count(token+nowchar)){
         token+=nowchar;getNextChar();
-    }return Token(_B_,boundaryMap[token]);
+    }
+	if(token=="#"){
+		token+=nowchar;getNextChar();
+		if(nowchar=='d'){
+			scanf("%[^?]?%d?%d",&src.file,&src.x,&src.y);
+			return Next();
+		}else{
+			error("Invalid Precompile Instructment");
+		}
+	}
+	if(boundaryMap.count(token))
+		return Token(_B_,boundaryMap[token]);
+	else error("Invalid Character");
 }
 #define nextif(condition,function) \
 else if(condition){return function();}

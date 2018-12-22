@@ -237,17 +237,20 @@ struct type* saveFunc(struct type*t){
 
 //给结构体或联合增加域
 void addField(struct type* Struct,struct type* fieldType){
-	Struct->size+=fieldType->size;
+	if(Struct->op!=TYPE_UNION)
+		Struct->size+=fieldType->size;
 	int delta=Struct->size-fieldType->size;
 	if(Struct->kid){
 		Struct=Struct->kid;
 		while(Struct->next)
 			Struct=Struct->next;
 		copyField(Struct->next,fieldType);
-		Struct->next->offset=delta;
+		if(Struct->op!=TYPE_UNION)
+			Struct->next->offset=delta;
 	}else{
 		copyField(Struct->kid,fieldType);
-		Struct->kid->offset=delta;
+		if(Struct->op!=TYPE_UNION)
+			Struct->kid->offset=delta;
 	}
 }
 

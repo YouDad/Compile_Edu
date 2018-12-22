@@ -22,8 +22,6 @@ struct type{
 	int op;
 	//域的偏移量
 	int offset;
-	//数组类型的长度
-	int len;
 	//用于存放浮点常量的符号指针
 	struct symbol* constFloat;
 	//kid是数组,结构体的指向下一级类型的指针
