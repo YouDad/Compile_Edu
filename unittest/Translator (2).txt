@@ -1,6 +1,7 @@
-int d[10];
-struct e{
-	float f;
-	char g;
-	int h;
-}i;
+:int main(){
+	int chr;
+	while(~(chr=getchar()){
+		putchar(chr);
+	}
+	return 0;
+}

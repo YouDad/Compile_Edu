@@ -240,7 +240,7 @@ int main(){
 	typeInit();
 	backEndInit();
 	translatorInit("64.gmr");
-    freopen("../unittest/Translator (4).txt","r",stdin);
+    freopen("../unittest/Translator (2).txt","r",stdin);
 	lexAnalyzerInit();
 	for(int i=1;i<action.size();i++)
 		printf("%s\n",action[i].c_str());
@@ -691,6 +691,9 @@ void act(ProductionNode now){
 		while(pointer>0)
 			tmp=ptr(tmp),
 			pointer--;
+		Symbol finds=findSymbol(idStack.top());
+		if(finds&&finds->scope==level)
+			error("Redefined '%s'",idStack.top().c_str());
 		Symbol s=newSymbol(idStack.top(),tmp,SCLASS_AUTO,src);
 		s->addressed=1;
 		tellVar(s);idStack.pop();

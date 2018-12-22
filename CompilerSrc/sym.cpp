@@ -44,6 +44,9 @@ Symbol newIntConst(int v){
 	ret->type=btot(TYPE_INT);
 	ret->u.c.i=v;
 	ret->needebx=0;
+	static char str[11];
+	sprintf(str,"%d",v);
+	ret->name=str;
 	return ret;
 }
 
@@ -157,6 +160,7 @@ Symbol newTemp(struct type*t,bool tell){
 	String name=str;
 	Symbol sym=install(name,level);
 	sym->temporary=1;
+	sym->addressed=1;
 	sym->sclass=SCLASS_AUTO;
 	copyField(sym->type,t);
 	sym->type->op&=TYPE_CONST-1;

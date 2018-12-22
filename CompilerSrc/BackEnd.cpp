@@ -223,6 +223,7 @@ const char* address(Symbol&s,int funcOffset=0){
 		Symbol same=s;
 		same->needebx=0;
 		asmSay("\tmov ebx,%s",address(same));
+		same->needebx=1;
 		sprintf(str,"%s [ebx]",whatPtr(sz));
 		return str;
 	}
@@ -399,20 +400,30 @@ void sendFloatOp(enum OP op,Symbol first,Symbol second,Symbol result);
 void sendOp(enum OP op,Symbol first,Symbol second,Symbol result){
 	if(isConst(result->type->op))
 		error("Constant can't be change");
-	if(second)
+	if(result->temporary&&result->addressed==0)
+		error("Constant can't be left value");
+	if(second){
 		objSay("(%s,%s,%s,%s)",op_str[op],first->name.c_str(),
 			second->name.c_str(),result->name.c_str());
-	else
+	}else{
 		objSay("(%s,%s,,%s)",op_str[op],first->name.c_str(),
 			result->name.c_str());
+	}
+	if(op==_MOV||op==_LEA||op==_NEG||op==_NOT||op==_INC||op==_DEC||op==_BTN)
+		asmSay(";%s=%s %s",result->name.c_str(),op_str[op],first->name.c_str());
+	else
+		asmSay(";%s=%s %s %s",result->name.c_str(),first->name.c_str(),
+			op_str[op],second->name.c_str());
 	if(isFloat(first->type->op)||(second&&isFloat(second->type->op))||isFloat(result->type->op)){
 		//存在浮点数,调用浮点数的sendOP
 		sendFloatOp(op,first,second,result);
 		return;
 	}
 	const char* mov="mov";
-	if(first->addressed&&isArray(first->type->op))
-		mov="lea";
+	if(first->addressed&&isArray(first->type->op)&&
+		!(second&&second->addressed&&isArray(second->type->op)))
+		if(op!=_MOV)
+			mov="lea";
 	switch(op){
 	case _ADD:case _SUB:case _AND:case _OR:
 	case _BTA:case _BTO:case _BTX:{
@@ -430,7 +441,8 @@ void sendOp(enum OP op,Symbol first,Symbol second,Symbol result){
 				address(first)
 			);
 			if((op==_ADD||op==_SUB)&&
-				(isPointer(first->type->op)||isArray(first->type->op))){
+				(isPointer(first->type->op)||isArray(first->type->op))&&
+				!((isPointer(second->type->op)||isArray(second->type->op)))){
 				asmSay("\tmov %s,%s",
 					whatBReg(second),
 					address(second)
