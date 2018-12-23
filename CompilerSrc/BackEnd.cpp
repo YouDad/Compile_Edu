@@ -55,12 +55,12 @@ void dimSay(const char* fmt,...){
 
 //后端初始化函数
 void backEndInit(){
-	/*fobj=fopen("E:/Programming Source/C++/asm_try/asm_try/a.o","w");
+	fobj=fopen("E:/Programming Source/C++/asm_try/asm_try/a.o","w");
 	fasm=fopen("E:/Programming Source/C++/asm_try/asm_try/a.asm","w");
-	fdim=fopen("E:/Programming Source/C++/asm_try/asm_try/a.inc","w");*/
-	fobj=fopen("a.o","w");
+	fdim=fopen("E:/Programming Source/C++/asm_try/asm_try/a.inc","w");
+	/*fobj=fopen("a.o","w");
 	fasm=fopen("a.asm","w");
-	fdim=fopen("a.inc","w");
+	fdim=fopen("a.inc","w");*/
 	dimSay("includelib kernel32.lib");
 	dimSay(".model flat,stdcall");
 	dimSay("ExitProcess proto,dwExitCode:dword");
@@ -110,7 +110,7 @@ void sendEnd(){
 		if(op==TYPE_FLOAT){
 			dimSay("\t\tdd %u",now->u.c.u);
 		}else if(op==TYPE_DOUBLE){
-			dimSay("\t\tdq %ull",now->u.c.uu);
+			dimSay("\t\tdq %llu",now->u.c.uu);
 		}else{
 			fprintf(fdim,"\t\tdb ");
 			const char* str=now->name.c_str()+1;
@@ -380,7 +380,13 @@ void sendFunc(enum FUNC_STATE state,std::stack<Symbol>ss){
 		int addsize=0;
 		while(ss.size()){
 			objSay("(arg,%s,,)",ss.top()->name.c_str());
-			asmSay("\tpush %s",address(ss.top(),identifierTable->size));
+			if((ss.top()->type->op&127)==TYPE_DOUBLE){
+				asmSay("\tsub esp,8");
+				asmSay("\tfld %s",address(ss.top()));
+				asmSay("\tfstp qword ptr [esp]");
+			}else{
+				asmSay("\tpush %s",address(ss.top(),identifierTable->size));
+			}
 			if(isArray(ss.top()->type->op))
 				addsize+=4;
 			else addsize+=ss.top()->type->size;
@@ -651,9 +657,6 @@ void sendOp(enum OP op,Symbol first,Symbol second,Symbol result){
 		}else if(first->needebx){
 			if(!compatibleType(first->type->kid,result->type))
 				error("Type error, Can't assign");
-		}else if(result->needebx){
-			if(!compatibleType(first->type,result->type->kid))
-				error("Type error, Can't assign");
 		}
 		eax=first;
 		asmSay("\t%s %s,%s",mov,
@@ -693,8 +696,8 @@ void sendFloatOp(enum OP op,Symbol first,Symbol second,Symbol result){
 	case _MUL:str1="fmul";goto BinaryOperator;
 	case _DIV:str1="fdiv";goto BinaryOperator;
 BinaryOperator:
-		f_ld(second);
 		f_ld(first);
+		f_ld(second);
 		asmSay("\t%s",str1);
 		str2=isFloat(result->type->op)?"":"i";
 		asmSay("\tf%sstp %s",str2,address(result));

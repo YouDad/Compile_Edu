@@ -1,8 +1,15 @@
-:void func(int a,float b,const char* c){
-	if(j)
-		for(k=-1;k;k++)
-			continue;
-	else;
-	return;
+:int main(){
+	double x=1,y=2.0;
+	float z=3;
+	printf("%.9lf\n",4/3.0);
+	printf("%.8lf\n",y/z);
+	printf("%.7lf\n",x/y);
+	printf("%.6lf\n",z/x);
+	printf("%.5lf\n",z/y);
+	printf("%.4lf\n",y/x);
+	printf("%.3lf\n",x/z);
+	printf("%.2lf\n",z-y);
+	printf("%.1lf\n",x+z);
+	printf("%lf\n",z*y);
 	return 0;
 }

@@ -240,22 +240,22 @@ int main(){
 	typeInit();
 	backEndInit();
 	translatorInit("64.gmr");
-    freopen("../unittest/Translator (2).txt","r",stdin);
+    freopen("../unittest/Translator (3).txt","r",stdin);
 	lexAnalyzerInit();
-	for(int i=1;i<action.size();i++)
-		printf("%s\n",action[i].c_str());
 	run(ProductionNode(_T_,43));
 	puts("Compile Over!\n\n\n");
     return 0;
 }
 #define nextis(str) else if(action[now.action]==str)
 #define nexthas(str) else if(action[now.action].find(str)!=-1)
-#define getfsr(op) \
+#define getfsr(Op) \
 	s=sem.top();sem.pop();\
 	f=sem.top();sem.pop();\
-	r=newTemp(f->type);\
+	if(isArith(f->type->op)&&isArith(s->type->op))\
+		r=newTemp(compatibleType(f->type,s->type));\
+	else r=newTemp(f->type);\
 	sem.push(r);\
-	sendOp(op,f,s,r)
+	sendOp(Op,f,s,r)
 #define getfrr(op) \
 	f=sem.top();sem.pop();\
 	r=sem.top();sem.pop();\

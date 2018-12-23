@@ -58,7 +58,7 @@ Symbol newFloatConst(Symbol s,Coordinate c){
 	if(s->type->op==TYPE_FLOAT)
 		sprintf(str,"$float%u",s->u.c.u);
 	else
-		sprintf(str,"$double%ull",s->u.c.uu);
+		sprintf(str,"$double%llu",s->u.c.uu);
 	String name=str;
 	Symbol sym=findConstSymbol(name);
 	if(sym)return sym;
@@ -69,6 +69,7 @@ Symbol newFloatConst(Symbol s,Coordinate c){
 	sym->temporary=0;
 	sym->type=s->type;
 	sym->u=s->u;
+	tellVar(sym);
 	return sym;
 }
 

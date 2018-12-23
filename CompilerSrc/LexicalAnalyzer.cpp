@@ -131,18 +131,20 @@ Token nextBoundary(){
 		token+=nowchar;getNextChar();
 	}
 	if(token[0]=='/'){
-		token+=nowchar;getNextChar();
-		if(token=="//"){//line commit
-			while(lastchar!='\n')getNextChar();
-			return next();
-		}
-		if(token=="/*"){//block commit
-			while(1){
-				do getNextChar();while(nowchar!='*');
-				getNextChar();
-				if(nowchar=='/'){
+		if(nowchar=='/'||nowchar=='*'){
+			token+=nowchar;getNextChar();
+			if(token=="//"){//line commit
+				while(lastchar!='\n')getNextChar();
+				return next();
+			}
+			if(token=="/*"){//block commit
+				while(1){
+					do getNextChar();while(nowchar!='*');
 					getNextChar();
-					return next();
+					if(nowchar=='/'){
+						getNextChar();
+						return next();
+					}
 				}
 			}
 		}
