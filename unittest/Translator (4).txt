@@ -30,7 +30,9 @@ struct::{
 	ni.yuwen=150;
 	like.shengwu=150;
 	wo.yinyu=0;
+	printf("请输入n:");
 	scanf("%d",&n);
+	printf("请输入%d个数字:");
 	for(i=0;i<n;i++)
 		scanf("%d",a+i);
 	for(m=a[0],i=1;i<n;i++)

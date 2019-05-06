@@ -1,0 +1,18 @@
+:int main(){
+	int i=0,j=1;
+	printf("i=%d,j=%d\n",i,j);
+	printf("i&&j=%d\n",i&&j);
+	printf("i||j=%d\n",i||j);
+	printf("i=%d,j=%d\n",i,j);
+	i=1,j=3;
+	printf("i&j=%d\n",i&j);
+	printf("i|j=%d\n",i|j);
+	printf("i^j=%d\n",i^j);
+	printf("i+j=%d\n",i+j);
+	printf("i-j=%d\n",i-j);
+	printf("i*j=%d\n",i*j);
+	printf("i/j=%d\n",i/j);
+	printf("j%%i=%d\n",j%i);
+	printf("!i=%d\n",!i);
+	return 0;
+}

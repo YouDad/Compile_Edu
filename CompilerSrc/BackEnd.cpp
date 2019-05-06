@@ -55,9 +55,13 @@ void dimSay(const char* fmt,...){
 
 //后端初始化函数
 void backEndInit(){
-	fobj=fopen("E:/Programming Source/C++/asm_try/asm_try/a.o","w");
-	fasm=fopen("E:/Programming Source/C++/asm_try/asm_try/a.asm","w");
-	fdim=fopen("E:/Programming Source/C++/asm_try/asm_try/a.inc","w");
+	if(FileOutput){
+		fobj=fopen("E:/Programming Source/C++/asm_try/asm_try/a.o","w");
+		fasm=fopen("E:/Programming Source/C++/asm_try/asm_try/a.asm","w");
+		fdim=fopen("E:/Programming Source/C++/asm_try/asm_try/a.inc","w");
+	}else{
+		fobj=fasm=fdim=stdout;
+	}
 	/*fobj=fopen("a.o","w");
 	fasm=fopen("a.asm","w");
 	fdim=fopen("a.inc","w");*/
@@ -334,8 +338,8 @@ void sendFunc(enum FUNC_STATE state,std::stack<Symbol>ss){
 			assert(s->type->op==TYPE_FUNCTION);
 			if(s->type->kid->next){
 				if(s->name=="main"){
-					asmSay("?main proc stdcall");
-					dimSay("?main proto stdcall");
+					asmSay("?main proc stdcall\\");
+					dimSay("?main proto stdcall\\");
 					SymbolTable t=identifierTable;
 					while(t->level>=SCOPE_GLOBAL)
 						mainSize+=t->size,
@@ -535,7 +539,10 @@ void sendOp(enum OP op,Symbol first,Symbol second,Symbol result){
 		//操作之后eax存到不是任何符号的内容了
 		if(ecx!=second){
 			ecx=second;
-			asmSay("\tmovsx ecx,%s",address(second));
+			const char*temp="sx";
+			if(second->type->size==4)
+				temp="";
+			asmSay("\tmov%s ecx,%s",temp,address(second));
 		}
 		asmSay("\tidiv ecx");
 		//存了之后,eax和result的内容是一样的了
@@ -555,7 +562,10 @@ void sendOp(enum OP op,Symbol first,Symbol second,Symbol result){
 		//操作之后eax存到不是任何符号的内容了
 		if(ecx!=second){
 			ecx=second;
-			asmSay("\tmovsx ecx,%s",address(second));
+			const char*temp="sx";
+			if(second->type->size==4)
+				temp="";
+			asmSay("\tmov%s ecx,%s",temp,address(second));
 		}
 		asmSay("\tidiv ecx");
 		//存了之后,eax和result的内容是一样的了
@@ -685,9 +695,6 @@ void f_ld(Symbol s){
 
 //处理浮点情况
 void sendFloatOp(enum OP op,Symbol first,Symbol second,Symbol result){
-	//int fsz=first->type->size;
-	//int ssz=second->type->size;
-	//int rsz=result->type->size;
 	const char* str1,* str2;
 	int x;
 	switch(op){

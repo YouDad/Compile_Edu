@@ -18,27 +18,27 @@ void typeInit(){
 	tmp.offset=0;
 	tmp.next=0;
 #define xx(n,o,s) tmp.name=n;tmp.op=o;tmp.size=s;i[n]=tmp
-	xx("unsigned char",TYPE_UCHAR,1);
-	xx("unsigned short",TYPE_USHORT,2);
-	xx("unsigned short int",TYPE_USHORT,2);
-	xx("unsigned int",TYPE_UINT,4);
-	xx("unsigned long",TYPE_UINT,4);
-	xx("unsigned long int",TYPE_UINT,4);
-	xx("signed char",TYPE_UCHAR,1);
-	xx("signed short",TYPE_USHORT,2);
-	xx("signed short int",TYPE_USHORT,2);
-	xx("signed int",TYPE_UINT,4);
-	xx("signed long",TYPE_UINT,4);
-	xx("signed long int",TYPE_UINT,4);
-	xx("char",TYPE_CHAR,1);
-	xx("short",TYPE_SHORT,2);
-	xx("short int",TYPE_SHORT,2);
-	xx("int",TYPE_INT,4);
-	xx("long",TYPE_INT,4);
-	xx("long int",TYPE_INT,4);
-	xx("float",TYPE_FLOAT,4);
-	xx("double",TYPE_DOUBLE,8);
-	xx("void",TYPE_VOID,0);
+	xx("unsigned char",		TYPE_UCHAR,		1);
+	xx("unsigned short",	TYPE_USHORT,	2);
+	xx("unsigned short int",TYPE_USHORT,	2);
+	xx("unsigned int",		TYPE_UINT,		4);
+	xx("unsigned long",		TYPE_UINT,		4);
+	xx("unsigned long int",	TYPE_UINT,		4);
+	xx("signed char",		TYPE_UCHAR,		1);
+	xx("signed short",		TYPE_USHORT,	2);
+	xx("signed short int",	TYPE_USHORT,	2);
+	xx("signed int",		TYPE_UINT,		4);
+	xx("signed long",		TYPE_UINT,		4);
+	xx("signed long int",	TYPE_UINT,		4);
+	xx("char",				TYPE_CHAR,		1);
+	xx("short",				TYPE_SHORT,		2);
+	xx("short int",			TYPE_SHORT,		2);
+	xx("int",				TYPE_INT,		4);
+	xx("long",				TYPE_INT,		4);
+	xx("long int",			TYPE_INT,		4);
+	xx("float",				TYPE_FLOAT,		4);
+	xx("double",			TYPE_DOUBLE,	8);
+	xx("void",				TYPE_VOID,		0);
 #undef xx
 }
 

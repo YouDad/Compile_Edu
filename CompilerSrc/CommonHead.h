@@ -17,12 +17,16 @@ typedef std::string String;
 void error(const char* fmt,...);
 void colorPrintf(int id,const char*format,...);
 
+#define WordOutput true
+#define ActionOutput true
+#define FileOutput true
+#define CompileFile "../unittest/Translator (4).txt"
+
 #include"BackEnd.h"
 #include"types.h"
 #include"sym.h"
 #include"LexicalAnalyzer.h"
 #include"Translator.h"
-
 
 
 

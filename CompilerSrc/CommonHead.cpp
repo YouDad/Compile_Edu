@@ -1,16 +1,16 @@
 #include"CommonHead.h"
-void error(const char* fmt,...){
-	//fprintf(stderr,"%s:%d:%d: ",src.file,src.x,src.y);
-	fprintf(stderr,"%d:%d: ",src.x,src.y);
-	va_list ap;
-	va_start(ap,fmt);
-	vfprintf(stderr,fmt,ap);
-	va_end(ap);
-	fprintf(stderr,"\n");
-	exit(1);
-}
 #include<stdarg.h>
 #include<Windows.h>
+void error(const char* fmt,...){
+	HANDLE hwnd=GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hwnd,4);
+    va_list ap;va_start(ap,fmt);
+	printf("%d,%d: ",src.x,src.y);
+    vprintf(fmt,ap);va_end(ap);
+	printf("\n");
+    SetConsoleTextAttribute(hwnd,15);
+	exit(1);
+}
 //printf colorful text,id means colorid
 //Blue=1,Green=2,3=Blue+Green=Clay,Red=4,...
 void colorPrintf(int id,const char*format,...){
@@ -18,5 +18,5 @@ void colorPrintf(int id,const char*format,...){
     SetConsoleTextAttribute(hwnd,8+id);
     va_list ap;va_start(ap,format);
     vprintf(format,ap);va_end(ap);
-    SetConsoleTextAttribute(hwnd,7);
+    SetConsoleTextAttribute(hwnd,15);
 }

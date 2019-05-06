@@ -24,7 +24,7 @@ enum{_K_=1,_I_,_N_,_C_,_S_,_B_,_T_};
 	//初始化词法分析器
 	extern void lexAnalyzerInit();
 	//返回下一个Token
-	extern Token Next(bool show=true);
+	extern Token Next(bool show=WordOutput);
 	inline bool isDigit(char x);
 	inline bool isHex(char x);
 	inline bool isOct(char x);

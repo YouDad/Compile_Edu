@@ -67,7 +67,6 @@ std::stack<String> idStack;
 //操作符栈
 std::stack<Token>ops;
 String lastS;
-Token lastK;
 int charVal(){
 	if(token[1]!='\\')
 		return token[1];
@@ -132,9 +131,6 @@ void expect(ProductionNode need){
 	if(t.id==need.id&&t.type==need.type){
 		if(t.type==_B_&&t.id<=16){
 			ops.push(t);
-		}
-		if(t.type==_K_){
-			lastK=t;
 		}
 		if(t.type==_I_){
 			idStack.push(token);
@@ -240,7 +236,7 @@ int main(){
 	typeInit();
 	backEndInit();
 	translatorInit("64.gmr");
-    freopen("../unittest/Translator (3).txt","r",stdin);
+    freopen(CompileFile,"r",stdin);
 	lexAnalyzerInit();
 	run(ProductionNode(_T_,43));
 	puts("Compile Over!\n\n\n");
@@ -265,12 +261,11 @@ int main(){
 #define funcall(name) __asm{call name}
 //执行now后面的动作
 void act(ProductionNode now){
-	printf("!%s\n",action[now.action].c_str());
+	if(ActionOutput)
+		colorPrintf(-2,"动作:%s\n",action[now.action].c_str());
 	enum{INT=1<<0,LONG=1<<1,SHORT=1<<2,FLOAT=1<<3,DOUBLE=1<<4,
 		VOID=1<<5,CHAR=1<<6,SIGNED=1<<7,UNSIGNED=1<<8,TYPE=1<<9};
-
 	static bool STATIC=false,STRUCT=false,UNION=false;
-
 	static std::stack<int>dimTypeStack;
 	static std::stack<int>forid;
 	static int pointer=0;
